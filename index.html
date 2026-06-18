@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>便利店库存管理</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --primary: #2563eb; --primary-dark: #1d4ed8; --primary-light: #dbeafe;
+    --success: #16a34a; --success-light: #dcfce7;
+    --danger: #dc2626; --danger-light: #fee2e2;
+    --warning: #f59e0b; --warning-light: #fef3c7;
+    --gray-50: #f9fafb; --gray-100: #f3f4f6; --gray-200: #e5e7eb;
+    --gray-300: #d1d5db; --gray-400: #9ca3af; --gray-500: #6b7280;
+    --gray-600: #4b5563; --gray-700: #374151; --gray-800: #1f2937;
+    --radius: 10px; --shadow: 0 1px 3px rgba(0,0,0,.1);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  html { font-size: 16px; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--gray-100); color: var(--gray-800); line-height: 1.5;
+    min-height: 100vh; padding-bottom: 70px;
+  }
+
+  /* ===== Login ===== */
+  .login-page {
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, #1e3a5f, #2563eb); padding: 1rem;
+  }
+  .login-card {
+    background: #fff; border-radius: 16px; padding: 2rem 1.5rem;
+    width: 100%; max-width: 340px; box-shadow: 0 20px 40px rgba(0,0,0,.2);
+  }
+  .login-card h1 { text-align: center; margin-bottom: .2rem; font-size: 1.25rem; }
+  .login-card p { text-align: center; color: var(--gray-500); font-size: .8rem; margin-bottom: 1rem; }
+  .login-card .field { margin-bottom: .8rem; }
+  .login-card label { display: block; font-size: .8rem; font-weight: 500; margin-bottom: .25rem; color: var(--gray-600); }
+  .login-card input {
+    width: 100%; padding: .6rem .75rem; border: 1px solid var(--gray-300);
+    border-radius: 8px; font-size: .9rem; outline: none;
+  }
+  .login-card input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+  .login-card .btn {
+    width: 100%; padding: .65rem; border: none; border-radius: 8px;
+    font-size: .95rem; font-weight: 600; background: var(--primary); color: #fff; cursor: pointer;
+  }
+  .login-card .btn:active { opacity: .85; }
+  .login-error { color: var(--danger); font-size: .82rem; text-align: center; margin-top: .5rem; display: none; }
+
+  /* ===== App ===== */
+  .app { display: none; }
+  .app.show { display: block; }
+
+  /* ===== Top Bar ===== */
+  .topbar {
+    background: #fff; padding: .7rem 1rem;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--gray-200); position: sticky; top: 0; z-index: 100;
+  }
+  .topbar h2 { font-size: 1rem; font-weight: 600; }
+  .topbar .user-info { font-size: .75rem; color: var(--gray-500); display: flex; align-items: center; gap: .4rem; }
+  .topbar .logout-btn { border: none; background: none; color: var(--danger); font-size: .75rem; cursor: pointer; }
+
+  /* ===== Bottom Nav ===== */
+  .bottom-nav {
+    position: fixed; bottom: 0; left: 0; right: 0; background: #fff;
+    border-top: 1px solid var(--gray-200); display: flex; z-index: 100;
+    padding-bottom: var(--safe-bottom);
+  }
+  .bottom-nav a {
+    flex: 1; text-align: center; padding: .45rem 0 .35rem;
+    font-size: .65rem; color: var(--gray-400); text-decoration: none;
+  }
+  .bottom-nav a .nav-icon { font-size: 1.3rem; display: block; margin-bottom: 1px; }
+  .bottom-nav a.active { color: var(--primary); }
+
+  /* ===== Page ===== */
+  .page { display: none; padding: .7rem; max-width: 600px; margin: 0 auto; }
+  .page.active { display: block; animation: fadeIn .2s; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  /* ===== Card ===== */
+  .card { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); padding: .85rem; margin-bottom: .7rem; }
+  .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: .5rem; padding-bottom: .4rem; border-bottom: 1px solid var(--gray-100); }
+  .card-header h3 { font-size: .88rem; font-weight: 600; }
+
+  /* ===== Stats ===== */
+  .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: .5rem; margin-bottom: .7rem; }
+  .stat-card { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); padding: .7rem; text-align: center; }
+  .stat-card .num { font-size: 1.3rem; font-weight: 700; line-height: 1.3; }
+  .stat-card .label { font-size: .68rem; color: var(--gray-500); }
+
+  /* ===== Product item ===== */
+  .product-item {
+    display: flex; align-items: center; padding: .55rem 0;
+    border-bottom: 1px solid var(--gray-100); gap: .5rem;
+  }
+  .product-item:last-child { border-bottom: none; }
+  .product-item .info { flex: 1; min-width: 0; }
+  .product-item .info strong { display: block; font-size: .85rem; }
+  .product-item .info small { color: var(--gray-400); font-size: .7rem; }
+  .stock-badge { display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: .72rem; font-weight: 600; white-space: nowrap; }
+  .stock-ok { background: var(--success-light); color: var(--success); }
+  .stock-low { background: var(--warning-light); color: #b45309; }
+  .stock-critical { background: var(--danger-light); color: var(--danger); }
+
+  /* ===== Search ===== */
+  .search-box { position: relative; margin-bottom: .6rem; }
+  .search-box input {
+    width: 100%; padding: .5rem .75rem .5rem 1.9rem;
+    border: 1px solid var(--gray-300); border-radius: 8px; font-size: .85rem; outline: none; background: #fff;
+  }
+  .search-box input:focus { border-color: var(--primary); }
+  .search-box .icon { position: absolute; left: .6rem; top: 50%; transform: translateY(-50%); color: var(--gray-400); }
+
+  /* ===== Buttons ===== */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: .3rem;
+    padding: .45rem .8rem; border: none; border-radius: 8px;
+    font-size: .8rem; font-weight: 500; cursor: pointer; transition: .15s; white-space: nowrap;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-success { background: var(--success); color: #fff; }
+  .btn-danger { background: var(--danger); color: #fff; }
+  .btn-warning { background: var(--warning); color: #fff; }
+  .btn-outline { background: transparent; border: 1px solid var(--gray-300); color: var(--gray-600); }
+  .btn-block { width: 100%; padding: .55rem; font-size: .88rem; }
+  .btn-lg { padding: .6rem 1.1rem; font-size: .88rem; }
+  .btn-sm { padding: .25rem .5rem; font-size: .72rem; }
+
+  /* ===== Modal ===== */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4);
+    z-index: 200; align-items: flex-end; justify-content: center;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal-overlay.center { align-items: center; }
+  .modal {
+    background: #fff; border-radius: 16px 16px 0 0; width: 100%;
+    max-width: 500px; max-height: 85vh; overflow-y: auto; animation: slideUp .25s;
+  }
+  .modal-overlay.center .modal { border-radius: 16px; }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .modal-header {
+    padding: .8rem 1rem; border-bottom: 1px solid var(--gray-200);
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; background: #fff; z-index: 1;
+  }
+  .modal-header h3 { font-size: .9rem; font-weight: 600; }
+  .modal-close { width: 30px; height: 30px; border: none; background: none; font-size: 1.2rem; cursor: pointer; border-radius: 6px; color: var(--gray-400); }
+  .modal-body { padding: .9rem; }
+  .modal-footer { padding: .6rem .9rem; border-top: 1px solid var(--gray-100); display: flex; gap: .5rem; justify-content: flex-end; }
+
+  /* ===== Form ===== */
+  .form-group { margin-bottom: .7rem; }
+  .form-group label { display: block; font-size: .75rem; font-weight: 500; margin-bottom: .2rem; color: var(--gray-600); }
+  .form-group input, .form-group select {
+    width: 100%; padding: .45rem .65rem; border: 1px solid var(--gray-300);
+    border-radius: 8px; font-size: .85rem; outline: none; background: #fff;
+  }
+  .form-group input:focus, .form-group select:focus { border-color: var(--primary); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
+
+  /* ===== Cashier ===== */
+  .cashier-product-list { max-height: 200px; overflow-y: auto; }
+  .cashier-item {
+    display: flex; align-items: center; padding: .5rem .5rem;
+    border: 1px solid var(--gray-200); border-radius: 8px; margin-bottom: .35rem; gap: .5rem;
+  }
+  .cashier-item:active { background: var(--gray-50); }
+  .cashier-item .ci-info { flex: 1; min-width: 0; }
+  .cashier-item .ci-info strong { font-size: .82rem; display: block; }
+  .cashier-item .ci-info small { font-size: .7rem; color: var(--gray-400); }
+  .cashier-item .ci-price { font-weight: 700; font-size: .88rem; color: var(--danger); white-space: nowrap; }
+  .cashier-item.selected { background: var(--primary-light); border-color: var(--primary); }
+
+  .cart-item {
+    display: flex; align-items: center; padding: .4rem 0;
+    border-bottom: 1px solid var(--gray-100); gap: .3rem;
+  }
+  .cart-item .ci-name { flex: 1; font-size: .8rem; }
+  .cart-item .ci-qty { width: 46px; }
+  .cart-item .ci-qty input { width: 44px; padding: .2rem; text-align: center; border: 1px solid var(--gray-300); border-radius: 4px; font-size: .8rem; }
+  .cart-item .ci-subtotal { font-weight: 600; font-size: .8rem; white-space: nowrap; min-width: 55px; text-align: right; }
+  .cart-item .ci-del { border: none; background: none; color: var(--danger); font-size: 1rem; cursor: pointer; padding: 0 .3rem; }
+
+  .cart-total { display: flex; justify-content: space-between; align-items: center; padding: .5rem 0; font-size: 1rem; font-weight: 700; }
+  .cart-total .total-price { color: var(--danger); font-size: 1.2rem; }
+
+  /* ===== Tabs ===== */
+  .tabs { display: flex; gap: .3rem; margin-bottom: .6rem; background: var(--gray-100); border-radius: 8px; padding: 3px; overflow-x: auto; }
+  .tabs button {
+    flex-shrink: 0; padding: .35rem .55rem; border: none; background: none;
+    border-radius: 6px; font-size: .75rem; font-weight: 500; color: var(--gray-500); cursor: pointer;
+  }
+  .tabs button.active { background: #fff; color: var(--gray-800); box-shadow: var(--shadow); }
+
+  /* ===== Toast ===== */
+  .toast-container {
+    position: fixed; top: .6rem; left: 50%; transform: translateX(-50%);
+    z-index: 999; display: flex; flex-direction: column; gap: .4rem;
+    pointer-events: none; align-items: center;
+  }
+  .toast {
+    pointer-events: auto; padding: .5rem .9rem; border-radius: 8px;
+    font-size: .8rem; box-shadow: 0 4px 12px rgba(0,0,0,.15);
+    animation: toastIn .25s; max-width: 300px; text-align: center;
+  }
+  @keyframes toastIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+  .toast-success { background: var(--success); color: #fff; }
+  .toast-error { background: var(--danger); color: #fff; }
+  .toast-warning { background: var(--warning); color: #fff; }
+  .toast-info { background: var(--primary); color: #fff; }
+
+  /* ===== Empty ===== */
+  .empty-state { text-align: center; padding: 1.5rem; color: var(--gray-400); font-size: .82rem; }
+  .empty-state .icon { font-size: 2rem; margin-bottom: .4rem; }
+
+  /* ===== Payment Modal ===== */
+  .payment-box { text-align: center; padding: .5rem; }
+  .payment-box .amount { font-size: 2.2rem; font-weight: 800; color: var(--danger); margin: .3rem 0; }
+  .payment-box .hint { font-size: .8rem; color: var(--gray-500); margin: .3rem 0; }
+  .payment-box .qrcode-area {
+    width: 160px; height: 160px; background: #fff;
+    border: 2px dashed var(--gray-300); border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    margin: .6rem auto; font-size: 2.5rem;
+  }
+
+  /* ===== Log item ===== */
+  .log-item { display: flex; justify-content: space-between; padding: .35rem 0; border-bottom: 1px solid var(--gray-50); font-size: .78rem; }
+  .user-row { display: flex; justify-content: space-between; align-items: center; padding: .45rem 0; border-bottom: 1px solid var(--gray-100); font-size: .82rem; }
+  .role-badge { display: inline-block; padding: 1px 6px; border-radius: 6px; font-size: .68rem; font-weight: 600; }
+  .role-admin { background: #fef3c7; color: #b45309; }
+  .role-cashier { background: var(--primary-light); color: var(--primary); }
+  table { width: 100%; font-size: .78rem; border-collapse: collapse; }
+  th { text-align: left; padding: .4rem .3rem; color: var(--gray-500); font-weight: 600; border-bottom: 1px solid var(--gray-200); }
+  td { padding: .35rem .3rem; border-bottom: 1px solid var(--gray-100); }
+</style>
+</head>
+<body>
+
+<!-- ===== Login ===== -->
+<div class="login-page" id="loginPage">
+  <div class="login-card">
+    <h1>🏪 便利店库存</h1>
+    <p>多人云端管理系统</p>
+    <div class="field">
+      <label>账号</label>
+      <input type="text" id="loginUsername" placeholder="输入账号" autocomplete="username">
+    </div>
+    <div class="field">
+      <label>密码</label>
+      <input type="password" id="loginPassword" placeholder="输入密码" autocomplete="current-password">
+    </div>
+    <button class="btn" onclick="login()">登 录</button>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+
+<!-- ===== App ===== -->
+<div class="app" id="app">
+
+  <!-- Top Bar -->
+  <div class="topbar">
+    <h2 id="pageTitle">收银</h2>
+    <div class="user-info">
+      <span id="userDisplay"></span>
+      <button class="logout-btn" onclick="logout()">退出</button>
+    </div>
+  </div>
+
+  <!-- ====== PAGE: 收银 ====== -->
+  <div class="page active" id="page-checkout">
+    <div class="search-box">
+      <span class="icon">🔍</span>
+      <input type="text" id="checkoutSearch" placeholder="搜索商品名称..." oninput="renderCheckoutProducts()">
+    </div>
+    <div class="tabs" id="checkoutTabs">
+      <button class="active" data-cat="" onclick="setCheckoutCat(this)">全部</button>
+    </div>
+    <div class="card" style="padding:.5rem;">
+      <div class="cashier-product-list" id="checkoutProductList">
+        <div class="empty-state"><div class="icon">📦</div><p>暂无商品</p></div>
+      </div>
+    </div>
+    <div class="card" id="cartSection">
+      <div class="card-header"><h3>🛒 购物车</h3><span id="cartCount" style="font-size:.74rem;color:var(--gray-400)">0 件</span></div>
+      <div id="cartList"><div class="empty-state" style="padding:.5rem;"><p>点击上方商品添加到购物车</p></div></div>
+      <div class="cart-total"><span>合计</span><span class="total-price" id="cartTotal">¥0.00</span></div>
+      <button class="btn btn-success btn-block btn-lg" id="checkoutBtn" onclick="openPayment()" disabled>📱 出示收款码收款</button>
+    </div>
+  </div>
+
+  <!-- ====== PAGE: 库存 ====== -->
+  <div class="page" id="page-inventory">
+    <div class="search-box">
+      <span class="icon">🔍</span>
+      <input type="text" id="invSearch" placeholder="搜索商品..." oninput="renderInventory()">
+    </div>
+    <div class="tabs" id="invTabs">
+      <button class="active" onclick="setInvFilter(this,'')">全部</button>
+      <button onclick="setInvFilter(this,'low')">⚠️ 不足</button>
+      <button onclick="setInvFilter(this,'critical')">🚨 缺货</button>
+    </div>
+    <div id="invList"></div>
+    <button class="btn btn-primary btn-block" id="addProductBtn" onclick="openProductModal()" style="margin-top:.4rem;">＋ 添加商品</button>
+  </div>
+
+  <!-- ====== PAGE: 报表 ====== -->
+  <div class="page" id="page-reports">
+    <div class="stats-grid" id="reportStats"></div>
+    <div class="card">
+      <div class="card-header"><h3>📊 按分类统计</h3></div>
+      <div id="categoryReport"></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h3>📋 库存概览</h3></div>
+      <div id="overviewReport"></div>
+    </div>
+  </div>
+
+  <!-- ====== PAGE: 管理 ====== -->
+  <div class="page" id="page-admin">
+    <div class="tabs" id="adminTabs">
+      <button class="active" onclick="switchAdminTab(this,'users')">👥 用户</button>
+      <button onclick="switchAdminTab(this,'settings')">⚙️ 设置</button>
+      <button onclick="switchAdminTab(this,'logs')">📝 日志</button>
+    </div>
+    <div id="adminUsers">
+      <button class="btn btn-primary btn-block" onclick="openUserModal()" style="margin-bottom:.5rem;">＋ 添加用户</button>
+      <div id="userList"></div>
+    </div>
+    <div id="adminSettings" style="display:none;">
+      <div class="card">
+        <div class="form-group"><label>库存预警值</label><div class="form-row">
+          <div><label style="font-size:.68rem;color:var(--gray-400);">不足 (≤)</label><input type="number" id="setLow" min="1"></div>
+          <div><label style="font-size:.68rem;color:var(--gray-400);">缺货 (≤)</label><input type="number" id="setCritical" min="0"></div>
+        </div></div>
+        <div class="form-group"><label>分类（每行一个）</label><textarea id="setCategories" rows="4" style="width:100%;padding:.45rem .65rem;border:1px solid var(--gray-300);border-radius:8px;font-size:.85rem;resize:vertical;"></textarea></div>
+        <div class="form-group"><label>商店名称</label><input type="text" id="setShopName"></div>
+        <button class="btn btn-primary btn-block" onclick="saveAdminSettings()">💾 保存设置</button>
+      </div>
+    </div>
+    <div id="adminLogs" style="display:none;"><div id="stockLogList"></div></div>
+  </div>
+
+  <!-- ===== Bottom Nav ===== -->
+  <nav class="bottom-nav">
+    <a class="active" data-page="checkout" onclick="switchPage('checkout')"><span class="nav-icon">🧾</span>收银</a>
+    <a data-page="inventory" onclick="switchPage('inventory')"><span class="nav-icon">📦</span>库存</a>
+    <a data-page="reports" onclick="switchPage('reports')"><span class="nav-icon">📊</span>报表</a>
+    <a data-page="admin" onclick="switchPage('admin')"><span class="nav-icon">⚙️</span>管理</a>
+  </nav>
+</div>
+
+<!-- ===== Modal: Product ===== -->
+<div class="modal-overlay center" id="productModal">
+  <div class="modal">
+    <div class="modal-header"><h3 id="productModalTitle">添加商品</h3><button class="modal-close" onclick="closeModal('productModal')">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="editProductId">
+      <div class="form-group"><label>商品名称 *</label><input type="text" id="fName"></div>
+      <div class="form-row">
+        <div class="form-group"><label>条码</label><input type="text" id="fBarcode"></div>
+        <div class="form-group"><label>分类 *</label><select id="fCategory"></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>库存数量</label><input type="number" id="fQty" min="0" value="0"></div>
+        <div class="form-group"><label>最低警戒</label><input type="number" id="fMinStock" min="0" value="5"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>进价 (元)</label><input type="number" id="fCost" min="0" step="0.01"></div>
+        <div class="form-group"><label>售价 (元) *</label><input type="number" id="fPrice" min="0" step="0.01"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>供应商</label><input type="text" id="fSupplier"></div>
+        <div class="form-group"><label>货架位置</label><input type="text" id="fShelf"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('productModal')">取消</button>
+      <button class="btn btn-primary" onclick="saveProduct()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Modal: Stock ===== -->
+<div class="modal-overlay center" id="stockModal">
+  <div class="modal">
+    <div class="modal-header"><h3 id="stockModalTitle">库存操作</h3><button class="modal-close" onclick="closeModal('stockModal')">✕</button></div>
+    <div class="modal-body">
+      <div class="tabs" style="margin-bottom:.6rem;">
+        <button class="active" id="stockTabIn" onclick="setStockTab('in')">📥 入库</button>
+        <button id="stockTabOut" onclick="setStockTab('out')">📤 出库</button>
+      </div>
+      <div id="stockFormSelect"><div class="form-group"><label>选择商品</label><select id="stockProductSelect"></select></div></div>
+      <div class="form-group"><label>数量</label><input type="number" id="stockQty" min="1" value="1"></div>
+      <div class="form-group" id="stockCostGroup"><label>进价 (可选)</label><input type="number" id="stockCost" min="0" step="0.01"></div>
+      <div class="form-group" id="stockPriceGroup" style="display:none;"><label>售价 (可选)</label><input type="number" id="stockPrice" min="0" step="0.01"></div>
+      <div class="form-group"><label>备注</label><input type="text" id="stockNote" placeholder="如：供应商送货"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('stockModal')">取消</button>
+      <button class="btn btn-success" id="stockConfirmBtn" onclick="confirmStock()">✅ 确认入库</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Modal: User ===== -->
+<div class="modal-overlay center" id="userModal">
+  <div class="modal">
+    <div class="modal-header"><h3>添加用户</h3><button class="modal-close" onclick="closeModal('userModal')">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="editUserId">
+      <div class="form-group"><label>账号 *</label><input type="text" id="uUsername"></div>
+      <div class="form-group"><label>显示名称 *</label><input type="text" id="uDisplayName"></div>
+      <div class="form-group"><label>密码 *</label><input type="password" id="uPassword"></div>
+      <div class="form-group"><label>角色</label><select id="uRole"><option value="cashier">收银员</option><option value="admin">管理员</option></select></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('userModal')">取消</button>
+      <button class="btn btn-primary" onclick="saveUser()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Modal: Payment ===== -->
+<div class="modal-overlay center" id="paymentModal">
+  <div class="modal" style="max-width:360px;">
+    <div class="modal-header"><h3>📱 微信收款</h3><button class="modal-close" onclick="closeModal('paymentModal')">✕</button></div>
+    <div class="modal-body">
+      <div class="payment-box">
+        <div style="font-size:.82rem;color:var(--gray-500);">应收金额</div>
+        <div class="amount" id="paymentAmount">¥0.00</div>
+        <div class="qrcode-area"><span style="font-size:1rem;">🧾</span></div>
+        <div class="hint">出示此金额给顾客扫码付款</div>
+      </div>
+    </div>
+    <div class="modal-footer" style="flex-direction:column;gap:.4rem;">
+      <button class="btn btn-success btn-block btn-lg" onclick="confirmPayment()" style="font-size:.9rem;">✅ 已收款，确认出库</button>
+      <button class="btn btn-outline btn-block" onclick="closeModal('paymentModal')">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Toast ===== -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// =================================================================
+// API
+// =================================================================
+const API = window.location.origin;
+let token = localStorage.getItem('cvs_token');
+let user = null;
+
+async function api(method, path, body) {
+  const opts = { method, headers: { 'Content-Type': 'application/json' } };
+  if (token) opts.headers['Authorization'] = 'Bearer ' + token;
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(API + path, opts);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || '请求失败');
+  return data;
+}
+
+// =================================================================
+// Auth
+// =================================================================
+async function login() {
+  const username = document.getElementById('loginUsername').value.trim();
+  const password = document.getElementById('loginPassword').value.trim();
+  const errEl = document.getElementById('loginError');
+  errEl.style.display = 'none';
+  if (!username || !password) { errEl.textContent = '请输入账号和密码'; errEl.style.display = 'block'; return; }
+  try {
+    const data = await api('POST', '/api/login', { username, password });
+    token = data.token; user = data.user;
+    localStorage.setItem('cvs_token', token);
+    enterApp();
+  } catch(e) {
+    errEl.textContent = e.message; errEl.style.display = 'block';
+  }
+}
+
+function logout() {
+  localStorage.removeItem('cvs_token'); token = null; user = null;
+  document.getElementById('loginPage').style.display = 'flex';
+  document.getElementById('app').classList.remove('show');
+}
+
+async function enterApp() {
+  document.getElementById('loginPage').style.display = 'none';
+  document.getElementById('app').classList.add('show');
+  document.getElementById('userDisplay').textContent = user.display_name + ' · ' + (user.role === 'admin' ? '管理员' : '收银员');
+  document.querySelector('[data-page="admin"]').style.display = user.role === 'admin' ? 'flex' : 'none';
+  document.getElementById('addProductBtn').style.display = user.role === 'admin' ? 'block' : 'none';
+  await loadCategories();
+  renderCheckoutProducts(); renderInventory(); renderReports(); renderUsers(); renderStockLog();
+  document.getElementById('setLow').value = 10; document.getElementById('setCritical').value = 3;
+  try { const s = await api('GET', '/api/settings');
+    document.getElementById('setLow').value = s.low_threshold;
+    document.getElementById('setCritical').value = s.critical_threshold;
+    document.getElementById('setCategories').value = (s.categories || []).join('\n');
+    document.getElementById('setShopName').value = s.shop_name || '我的便利店';
+  } catch(e) {}
+}
+
+// =================================================================
+// Toast
+// =================================================================
+function toast(msg, type = 'info') {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = 'toast toast-' + type;
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => { t.style.opacity = '0'; t.style.transition = '.3s'; setTimeout(() => t.remove(), 300); }, 2000);
+}
+
+// =================================================================
+// Categories
+// =================================================================
+let categories = [];
+async function loadCategories() {
+  try { const s = await api('GET', '/api/settings'); categories = s.categories || []; } catch(e) {}
+  renderCheckoutTabs();
+  ['fCategory'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.innerHTML = '<option value="">请选择</option>'; categories.forEach(c => { el.innerHTML += `<option value="${c}">${c}</option>`; }); }
+  });
+}
+
+// =================================================================
+// Navigation
+// =================================================================
+function switchPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.querySelectorAll('.bottom-nav a').forEach(a => a.classList.remove('active'));
+  document.querySelector(`.bottom-nav a[data-page="${name}"]`).classList.add('active');
+  const titles = { checkout: '收银', inventory: '库存管理', reports: '数据报表', admin: '系统管理' };
+  document.getElementById('pageTitle').textContent = titles[name] || '';
+  if (name === 'checkout') renderCheckoutProducts();
+  if (name === 'inventory') renderInventory();
+  if (name === 'reports') renderReports();
+  if (name === 'admin') { renderUsers(); renderStockLog(); }
+}
+
+function openModal(id) { document.getElementById(id).classList.add('show'); }
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+document.addEventListener('click', e => { if (e.target.classList.contains('modal-overlay')) e.target.classList.remove('show'); });
+
+// =================================================================
+// CHECKOUT
+// =================================================================
+let checkoutProducts = [];
+let cart = [];
+
+function renderCheckoutTabs() {
+  const container = document.getElementById('checkoutTabs');
+  container.innerHTML = '<button class="active" data-cat="" onclick="setCheckoutCat(this)">全部</button>';
+  categories.forEach(c => { container.innerHTML += `<button data-cat="${c}" onclick="setCheckoutCat(this)">${c}</button>`; });
+}
+
+let checkoutCat = '';
+function setCheckoutCat(el) {
+  document.querySelectorAll('#checkoutTabs button').forEach(b => b.classList.remove('active'));
+  el.classList.add('active'); checkoutCat = el.dataset.cat;
+  renderCheckoutProducts();
+}
+
+async function renderCheckoutProducts() {
+  try { checkoutProducts = await api('GET', '/api/products'); } catch(e) { return; }
+  const search = (document.getElementById('checkoutSearch').value || '').toLowerCase();
+  let list = checkoutProducts;
+  if (search) list = list.filter(p => p.name.toLowerCase().includes(search) || (p.barcode && p.barcode.includes(search)));
+  if (checkoutCat) list = list.filter(p => p.category === checkoutCat);
+  list = list.filter(p => p.qty > 0);
+  const container = document.getElementById('checkoutProductList');
+  if (list.length === 0) { container.innerHTML = '<div class="empty-state"><div class="icon">📦</div><p>没有可售商品</p></div>'; return; }
+  container.innerHTML = list.map(p => {
+    const inCart = cart.find(c => c.product_id === p.id);
+    return `<div class="cashier-item${inCart ? ' selected' : ''}" onclick="addToCart('${p.id}')">
+      <div class="ci-info"><strong>${p.name}</strong><small>库存: ${p.qty}${inCart ? ` · 已选 ${inCart.qty}` : ''}</small></div>
+      <div class="ci-price">¥${Number(p.price).toFixed(2)}</div>
+    </div>`;
+  }).join('');
+}
+
+function addToCart(productId) {
+  const p = checkoutProducts.find(x => x.id === productId);
+  if (!p) return;
+  const exist = cart.find(c => c.product_id === productId);
+  if (exist) { if (exist.qty >= p.qty) { toast('已达最大库存', 'warning'); return; } exist.qty++; }
+  else cart.push({ product_id: p.id, product_name: p.name, qty: 1, price: p.price });
+  renderCart(); renderCheckoutProducts();
+}
+
+function renderCart() {
+  const container = document.getElementById('cartList');
+  const count = document.getElementById('cartCount');
+  const totalEl = document.getElementById('cartTotal');
+  const btn = document.getElementById('checkoutBtn');
+  count.textContent = cart.reduce((s, i) => s + i.qty, 0) + ' 件';
+  if (cart.length === 0) { container.innerHTML = '<div class="empty-state" style="padding:.5rem;"><p>点击上方商品添加到购物车</p></div>'; totalEl.textContent = '¥0.00'; btn.disabled = true; return; }
+  btn.disabled = false;
+  let total = 0;
+  container.innerHTML = cart.map((item, idx) => {
+    const subtotal = item.qty * item.price; total += subtotal;
+    return `<div class="cart-item"><span class="ci-name">${item.product_name}</span>
+      <span class="ci-qty"><input type="number" min="1" max="${(checkoutProducts.find(p => p.id === item.product_id) || {}).qty || 99}" value="${item.qty}" onchange="updateCartQty(${idx}, this.value)"></span>
+      <span class="ci-subtotal">¥${subtotal.toFixed(2)}</span>
+      <button class="ci-del" onclick="removeFromCart(${idx})">✕</button></div>`;
+  }).join('');
+  totalEl.textContent = '¥' + total.toFixed(2);
+}
+
+function updateCartQty(idx, val) {
+  const n = parseInt(val);
+  if (isNaN(n) || n < 1) cart.splice(idx, 1);
+  else { const p = checkoutProducts.find(x => x.id === cart[idx].product_id); if (p && n > p.qty) { toast('库存不足', 'warning'); return; } cart[idx].qty = n; }
+  renderCart(); renderCheckoutProducts();
+}
+function removeFromCart(idx) { cart.splice(idx, 1); renderCart(); renderCheckoutProducts(); }
+function getCartTotal() { return cart.reduce((s, i) => s + i.qty * i.price, 0); }
+
+// =================================================================
+// Payment
+// =================================================================
+function openPayment() {
+  if (cart.length === 0) { toast('购物车为空', 'warning'); return; }
+  document.getElementById('paymentAmount').textContent = '¥' + getCartTotal().toFixed(2);
+  openModal('paymentModal');
+}
+
+async function confirmPayment() {
+  if (cart.length === 0) return;
+  try {
+    const data = await api('POST', '/api/sale', { items: cart.map(i => ({ product_id: i.product_id, qty: i.qty, price: i.price })), payment_method: 'wechat' });
+    toast('✅ 收款成功！¥' + data.total.toFixed(2), 'success');
+    cart = []; closeModal('paymentModal'); renderCart(); renderCheckoutProducts();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+// =================================================================
+// INVENTORY
+// =================================================================
+let invFilter = '';
+function setInvFilter(el, f) {
+  document.querySelectorAll('#invTabs button').forEach(b => b.classList.remove('active'));
+  el.classList.add('active'); invFilter = f; renderInventory();
+}
+
+async function renderInventory() {
+  let products;
+  try {
+    const params = new URLSearchParams();
+    if (invFilter) params.set('stock_status', invFilter);
+    const search = document.getElementById('invSearch').value.trim();
+    if (search) params.set('search', search);
+    products = await api('GET', '/api/products?' + params.toString());
+  } catch(e) { return; }
+  let s;
+  try { s = await api('GET', '/api/settings'); } catch(e) { s = { low_threshold: 10, critical_threshold: 3 }; }
+  const low = parseInt(s.low_threshold); const critical = parseInt(s.critical_threshold);
+  const container = document.getElementById('invList');
+  if (products.length === 0) { container.innerHTML = '<div class="empty-state"><div class="icon">📦</div><p>暂无商品</p></div>'; return; }
+  container.innerHTML = products.map(p => {
+    let badge, cls;
+    if (p.qty <= critical) { badge = '缺货'; cls = 'stock-critical'; }
+    else if (p.qty <= low) { badge = '不足'; cls = 'stock-low'; }
+    else { badge = '正常'; cls = 'stock-ok'; }
+    return `<div class="product-item">
+      <div class="info"><strong>${p.name}</strong><small>${p.category || ''}${p.shelf ? ' · ' + p.shelf : ''} · 售价 ¥${Number(p.price).toFixed(2)}</small></div>
+      <span class="stock-badge ${cls}">${p.qty} · ${badge}</span>
+      ${user.role === 'admin' ? `<button class="btn btn-outline btn-sm" onclick="openStockModal('${p.id}')">🔄</button><button class="btn btn-outline btn-sm" onclick="editProduct('${p.id}')">✏️</button>` : ''}
+    </div>`;
+  }).join('');
+}
+
+// =================================================================
+// Stock Modal
+// =================================================================
+let stockMode = 'in';
+function openStockModal(productId) {
+  document.getElementById('stockFormSelect').style.display = 'block';
+  const sel = document.getElementById('stockProductSelect');
+  sel.innerHTML = '<option value="">-- 请选择 --</option>';
+  checkoutProducts.forEach(p => { sel.innerHTML += `<option value="${p.id}" ${p.id === productId ? 'selected' : ''}>${p.name} (库存: ${p.qty})</option>`; });
+  setStockTab('in'); document.getElementById('stockQty').value = 1; document.getElementById('stockCost').value = ''; document.getElementById('stockPrice').value = ''; document.getElementById('stockNote').value = '';
+  openModal('stockModal');
+}
+function setStockTab(mode) {
+  stockMode = mode;
+  document.getElementById('stockTabIn').className = mode === 'in' ? 'active' : '';
+  document.getElementById('stockTabOut').className = mode === 'out' ? 'active' : '';
+  document.getElementById('stockCostGroup').style.display = mode === 'in' ? 'block' : 'none';
+  document.getElementById('stockPriceGroup').style.display = mode === 'out' ? 'block' : 'none';
+  document.getElementById('stockConfirmBtn').className = mode === 'in' ? 'btn btn-success' : 'btn btn-warning';
+  document.getElementById('stockConfirmBtn').textContent = mode === 'in' ? '✅ 确认入库' : '📤 确认出库';
+}
+async function confirmStock() {
+  const qty = parseInt(document.getElementById('stockQty').value);
+  if (isNaN(qty) || qty < 1) { toast('请输入数量', 'warning'); return; }
+  const pid = document.getElementById('stockProductSelect').value;
+  if (!pid) { toast('请选择商品', 'warning'); return; }
+  const cost = parseFloat(document.getElementById('stockCost').value);
+  const price = parseFloat(document.getElementById('stockPrice').value);
+  const note = document.getElementById('stockNote').value.trim();
+  try {
+    const body = { product_id: pid, qty, note };
+    if (stockMode === 'in') { if (!isNaN(cost) && cost > 0) body.cost = cost; await api('POST', '/api/stock/in', body); toast('入库成功', 'success'); }
+    else { if (!isNaN(price) && price > 0) body.price = price; await api('POST', '/api/stock/out', body); toast('出库成功', 'success'); }
+    closeModal('stockModal'); renderInventory(); renderCheckoutProducts();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+// =================================================================
+// Product CRUD
+// =================================================================
+function openProductModal() {
+  document.getElementById('productModalTitle').textContent = '添加商品';
+  document.getElementById('editProductId').value = '';
+  ['fName','fBarcode','fSupplier','fShelf'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('fQty').value = 0; document.getElementById('fMinStock').value = 5;
+  document.getElementById('fCost').value = ''; document.getElementById('fPrice').value = ''; document.getElementById('fCategory').value = '';
+  openModal('productModal');
+}
+async function editProduct(id) {
+  try {
+    const products = await api('GET', '/api/products'); const p = products.find(x => x.id === id);
+    if (!p) return;
+    document.getElementById('productModalTitle').textContent = '编辑商品';
+    document.getElementById('editProductId').value = p.id;
+    document.getElementById('fName').value = p.name; document.getElementById('fBarcode').value = p.barcode || '';
+    document.getElementById('fCategory').value = p.category || ''; document.getElementById('fSupplier').value = p.supplier || '';
+    document.getElementById('fQty').value = p.qty; document.getElementById('fMinStock').value = p.min_stock || 5;
+    document.getElementById('fCost').value = p.cost || ''; document.getElementById('fPrice').value = p.price || '';
+    document.getElementById('fShelf').value = p.shelf || '';
+    openModal('productModal');
+  } catch(e) { toast(e.message, 'error'); }
+}
+async function saveProduct() {
+  const id = document.getElementById('editProductId').value;
+  const name = document.getElementById('fName').value.trim(); const category = document.getElementById('fCategory').value;
+  const price = parseFloat(document.getElementById('fPrice').value);
+  if (!name) { toast('请输入名称', 'warning'); return; }
+  if (!category) { toast('请选择分类', 'warning'); return; }
+  if (!price) { toast('请输入售价', 'warning'); return; }
+  const body = { name, barcode: document.getElementById('fBarcode').value.trim(), category, supplier: document.getElementById('fSupplier').value.trim(), qty: parseInt(document.getElementById('fQty').value) || 0, min_stock: parseInt(document.getElementById('fMinStock').value) || 5, cost: parseFloat(document.getElementById('fCost').value) || 0, price, shelf: document.getElementById('fShelf').value.trim() };
+  try { if (id) { await api('PUT', '/api/products/' + id, body); toast('已更新', 'success'); } else { await api('POST', '/api/products', body); toast('已添加', 'success'); } closeModal('productModal'); renderInventory(); renderCheckoutProducts(); } catch(e) { toast(e.message, 'error'); }
+}
+
+// =================================================================
+// REPORTS
+// =================================================================
+async function renderReports() {
+  try {
+    const dash = await api('GET', '/api/dashboard'); const rep = await api('GET', '/api/reports');
+    document.getElementById('reportStats').innerHTML =
+      `<div class="stat-card"><div class="num">${dash.totalProducts}</div><div class="label">总商品</div></div>
+       <div class="stat-card"><div class="num">¥${Number(dash.totalValue).toFixed(0)}</div><div class="label">库存价值</div></div>
+       <div class="stat-card"><div class="num" style="color:var(--warning)">${dash.lowStock}</div><div class="label">库存不足</div></div>
+       <div class="stat-card"><div class="num" style="color:var(--danger)">${dash.criticalStock}</div><div class="label">缺货</div></div>`;
+    const catData = rep.categoryReport || {}; const catKeys = Object.keys(catData);
+    document.getElementById('categoryReport').innerHTML = catKeys.length === 0 ? '<div class="empty-state"><p>暂无数据</p></div>' :
+      '<table><thead><tr><th>分类</th><th>商品</th><th>库存</th><th>价值</th></tr></thead><tbody>' +
+      catKeys.map(c => `<tr><td><strong>${c}</strong></td><td>${catData[c].count}</td><td>${catData[c].qty}</td><td>¥${Number(catData[c].value).toFixed(0)}</td></tr>`).join('') + '</tbody></table>';
+    const ov = rep.overview || {};
+    document.getElementById('overviewReport').innerHTML =
+      `<div style="display:grid;gap:.4rem;font-size:.8rem;">
+        <div style="display:flex;justify-content:space-between;padding:.3rem 0;border-bottom:1px solid var(--gray-100);"><span style="color:var(--gray-500);">总库存量</span><strong>${ov.totalStock} 件</strong></div>
+        <div style="display:flex;justify-content:space-between;padding:.3rem 0;border-bottom:1px solid var(--gray-100);"><span style="color:var(--gray-500);">平均售价</span><strong>¥${Number(ov.avgPrice).toFixed(2)}</strong></div>
+        <div style="display:flex;justify-content:space-between;padding:.3rem 0;"><span style="color:var(--gray-500);">今日销售</span><strong>${dash.todaySales?.count || 0} 笔 · ¥${Number(dash.todaySales?.total || 0).toFixed(2)}</strong></div>
+       </div>`;
+  } catch(e) {}
+}
+
+// =================================================================
+// ADMIN - Users
+// =================================================================
+async function renderUsers() {
+  if (document.getElementById('adminUsers').style.display === 'none') return;
+  try {
+    const users = await api('GET', '/api/users');
+    document.getElementById('userList').innerHTML = users.length === 0 ? '<div class="empty-state"><p>暂无用户</p></div>' :
+      users.map(u => `<div class="user-row"><div><span class="user-name">${u.display_name} <span class="role-badge ${u.role === 'admin' ? 'role-admin' : 'role-cashier'}">${u.role === 'admin' ? '管理员' : '收银员'}</span></span><br><span style="font-size:.72rem;color:var(--gray-400)">${u.username}</span></div>
+      <div style="display:flex;gap:.3rem;">${u.role !== 'admin' ? `<button class="btn btn-danger btn-sm" onclick="deleteUser('${u.id}')">删除</button>` : ''}</div></div>`).join('');
+  } catch(e) {}
+}
+function openUserModal() {
+  document.getElementById('editUserId').value = ''; document.getElementById('uUsername').value = ''; document.getElementById('uUsername').disabled = false;
+  document.getElementById('uDisplayName').value = ''; document.getElementById('uPassword').value = ''; document.getElementById('uRole').value = 'cashier';
+  openModal('userModal');
+}
+async function saveUser() {
+  const id = document.getElementById('editUserId').value;
+  const username = document.getElementById('uUsername').value.trim(); const display_name = document.getElementById('uDisplayName').value.trim();
+  const password = document.getElementById('uPassword').value; const role = document.getElementById('uRole').value;
+  if (!display_name) { toast('请输入显示名称', 'warning'); return; }
+  if (!id && !username) { toast('请输入账号', 'warning'); return; }
+  if (!id && !password) { toast('请输入密码', 'warning'); return; }
+  try { if (id) { const body = { display_name, role }; if (password) body.password = password; await api('PUT', '/api/users/' + id, body); toast('已更新', 'success'); } else { await api('POST', '/api/users', { username, password, display_name, role }); toast('已添加', 'success'); } closeModal('userModal'); renderUsers(); } catch(e) { toast(e.message, 'error'); }
+}
+async function deleteUser(id) { if (!confirm('确认删除此用户？')) return; try { await api('DELETE', '/api/users/' + id); toast('已删除', 'success'); renderUsers(); } catch(e) { toast(e.message, 'error'); } }
+
+// =================================================================
+// ADMIN - Settings
+// =================================================================
+async function saveAdminSettings() {
+  const low = parseInt(document.getElementById('setLow').value) || 10;
+  const critical = parseInt(document.getElementById('setCritical').value) || 3;
+  const cats = document.getElementById('setCategories').value.split('\n').map(s => s.trim()).filter(Boolean);
+  const shop_name = document.getElementById('setShopName').value.trim() || '我的便利店';
+  try { await api('PUT', '/api/settings', { low_threshold: low, critical_threshold: critical, categories: cats, shop_name }); toast('设置已保存', 'success'); categories = cats; renderCheckoutTabs(); } catch(e) { toast(e.message, 'error'); }
+}
+
+// =================================================================
+// ADMIN - Tabs
+// =================================================================
+function switchAdminTab(el, tab) {
+  document.querySelectorAll('#adminTabs button').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('adminUsers').style.display = tab === 'users' ? 'block' : 'none';
+  document.getElementById('adminSettings').style.display = tab === 'settings' ? 'block' : 'none';
+  document.getElementById('adminLogs').style.display = tab === 'logs' ? 'block' : 'none';
+  if (tab === 'users') renderUsers(); if (tab === 'logs') renderStockLog();
+}
+
+// =================================================================
+// ADMIN - Logs
+// =================================================================
+async function renderStockLog() {
+  try {
+    const logs = await api('GET', '/api/stock/log');
+    document.getElementById('stockLogList').innerHTML = logs.length === 0 ? '<div class="empty-state"><p>暂无记录</p></div>' :
+      logs.map(l => `<div class="log-item"><span>${l.type === 'in' ? '📥' : '📤'} <strong>${l.product_name}</strong> ${l.type === 'in' ? '入库' : '出库'} ${l.qty}${l.operator ? ' · ' + l.operator : ''}</span><span style="color:var(--gray-400);font-size:.7rem;">${l.time}</span></div>`).join('');
+  } catch(e) {}
+}
+
+// =================================================================
+// Auto refresh
+// =================================================================
+setInterval(async () => {
+  if (document.getElementById('app').classList.contains('show')) {
+    const activePage = document.querySelector('.page.active');
+    if (activePage) { const id = activePage.id; if (id === 'page-checkout') renderCheckoutProducts(); else if (id === 'page-inventory') renderInventory(); else if (id === 'page-reports') renderReports(); }
+  }
+}, 30000);
+
+// =================================================================
+// Init
+// =================================================================
+(async function init() {
+  if (token) {
+    try { const data = await api('GET', '/api/me'); user = data.user; await enterApp(); } catch(e) { localStorage.removeItem('cvs_token'); token = null; }
+  }
+})();
+</script>
+</body>
+</html>
