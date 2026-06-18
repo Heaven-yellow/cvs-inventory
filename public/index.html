@@ -2,17 +2,17 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>便利店库存</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--primary:#2563eb;--success:#16a34a;--danger:#dc2626;--warning:#f59e0b;--gray-100:#f3f4f6;--gray-200:#e5e7eb;--gray-300:#d1d5db;--gray-400:#9ca3af;--gray-800:#1f2937;--radius:10px;--shadow:0 1px 3px rgba(0,0,0,.1);--safe-bottom:env(safe-area-inset-bottom,0px)}
 html{font-size:16px}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:var(--gray-100);color:var(--gray-800);line-height:1.5;min-height:100vh;padding-bottom:70px}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--gray-100);color:var(--gray-800);line-height:1.5;min-height:100vh;padding-bottom:70px}
 .login-page{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1e3a5f,#2563eb);padding:1rem}
 .login-card{background:#fff;border-radius:16px;padding:2rem 1.5rem;width:100%;max-width:340px;box-shadow:0 20px 40px rgba(0,0,0,.2)}
-.login-card h1{text-align:center;margin-bottom:.2rem;font-size:1.25rem}
-.login-card p{text-align:center;color:var(--gray-500);font-size:.8rem;margin-bottom:1rem}
+.login-card h1{text-align:center;font-size:1.25rem}
+.login-card p{text-align:center;color:var(--gray-500);font-size:.8rem;margin:.3rem 0 1rem}
 .login-card .field{margin-bottom:.8rem}
 .login-card label{display:block;font-size:.8rem;font-weight:500;margin-bottom:.25rem;color:var(--gray-600)}
 .login-card input{width:100%;padding:.6rem .75rem;border:1px solid var(--gray-300);border-radius:8px;font-size:.9rem;outline:none}
@@ -39,44 +39,33 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Micr
 .stat-card .num{font-size:1.3rem;font-weight:700}.stat-card .label{font-size:.68rem;color:var(--gray-500)}
 .product-item{display:flex;align-items:center;padding:.5rem 0;border-bottom:1px solid var(--gray-100);gap:.5rem}
 .product-item:last-child{border-bottom:none}
-.product-item .info{flex:1;min-width:0}
-.product-item .info strong{display:block;font-size:.85rem}
-.product-item .info small{color:var(--gray-400);font-size:.7rem}
-.stock-badge{display:inline-block;padding:1px 7px;border-radius:10px;font-size:.72rem;font-weight:600;white-space:nowrap}
+.product-item .info{flex:1;min-width:0}.product-item .info strong{display:block;font-size:.85rem}.product-item .info small{color:var(--gray-400);font-size:.7rem}
+.stock-badge{display:inline-block;padding:1px 7px;border-radius:10px;font-size:.72rem;font-weight:600}
 .stock-ok{background:#dcfce7;color:#16a34a}.stock-low{background:#fef3c7;color:#b45309}.stock-critical{background:#fee2e2;color:var(--danger)}
 .search-box{position:relative;margin-bottom:.6rem}
 .search-box input{width:100%;padding:.5rem .75rem .5rem 1.9rem;border:1px solid var(--gray-300);border-radius:8px;font-size:.85rem;outline:none;background:#fff}
-.search-box input:focus{border-color:var(--primary)}
-.search-box .icon{position:absolute;left:.6rem;top:50%;transform:translateY(-50%);color:var(--gray-400)}
+.search-box input:focus{border-color:var(--primary)}.search-box .icon{position:absolute;left:.6rem;top:50%;transform:translateY(-50%);color:var(--gray-400)}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:.3rem;padding:.45rem .8rem;border:none;border-radius:8px;font-size:.8rem;font-weight:500;cursor:pointer;white-space:nowrap}
-.btn-primary{background:var(--primary);color:#fff}.btn-success{background:#16a34a;color:#fff}.btn-danger{background:#dc2626;color:#fff}
+.btn-primary{background:var(--primary);color:#fff}.btn-success{background:#16a34a;color:#fff}.btn-danger{background:#dc2626;color:#fff}.btn-warning{background:#f59e0b;color:#fff}
 .btn-outline{background:transparent;border:1px solid var(--gray-300);color:var(--gray-600)}
 .btn-block{width:100%;padding:.55rem;font-size:.88rem}.btn-lg{padding:.6rem 1.1rem}.btn-sm{padding:.25rem .5rem;font-size:.72rem}.btn-xs{padding:.18rem .38rem;font-size:.65rem;border:1px solid var(--gray-300);border-radius:4px;background:#fff;cursor:pointer;color:var(--gray-600)}
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;align-items:flex-end;justify-content:center}
 .modal-overlay.show{display:flex}.modal-overlay.center{align-items:center}
 .modal{background:#fff;border-radius:16px 16px 0 0;width:100%;max-width:500px;max-height:85vh;overflow-y:auto;animation:slideUp .25s}
-.modal-overlay.center .modal{border-radius:16px}
-@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-overlay.center .modal{border-radius:16px}@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 .modal-header{padding:.8rem 1rem;border-bottom:1px solid var(--gray-200);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:1}
-.modal-header h3{font-size:.9rem;font-weight:600}
-.modal-close{width:30px;height:30px;border:none;background:none;font-size:1.2rem;cursor:pointer;border-radius:6px;color:var(--gray-400)}
+.modal-header h3{font-size:.9rem;font-weight:600}.modal-close{width:30px;height:30px;border:none;background:none;font-size:1.2rem;cursor:pointer;border-radius:6px;color:var(--gray-400)}
 .modal-body{padding:.9rem}.modal-footer{padding:.6rem .9rem;border-top:1px solid var(--gray-100);display:flex;gap:.5rem;justify-content:flex-end}
-.form-group{margin-bottom:.7rem}
-.form-group label{display:block;font-size:.75rem;font-weight:500;margin-bottom:.2rem;color:var(--gray-600)}
+.form-group{margin-bottom:.7rem}.form-group label{display:block;font-size:.75rem;font-weight:500;margin-bottom:.2rem;color:var(--gray-600)}
 .form-group input,.form-group select{width:100%;padding:.45rem .65rem;border:1px solid var(--gray-300);border-radius:8px;font-size:.85rem;outline:none;background:#fff}
-.form-group input:focus,.form-group select:focus{border-color:var(--primary)}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+.form-group input:focus,.form-group select:focus{border-color:var(--primary)}.form-row{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
 .sell-prod-list{max-height:200px;overflow-y:auto}
 .sell-item{display:flex;align-items:center;padding:.5rem;border:1px solid var(--gray-200);border-radius:8px;margin-bottom:.35rem;gap:.5rem}
-.sell-item .si-info{flex:1;min-width:0}
-.sell-item .si-info strong{font-size:.82rem;display:block}
-.sell-item .si-info small{font-size:.7rem;color:var(--gray-400)}
+.sell-item .si-info{flex:1;min-width:0}.sell-item .si-info strong{font-size:.82rem}.sell-item .si-info small{font-size:.7rem;color:var(--gray-400)}
 .sell-item .si-price{font-weight:700;font-size:.88rem;color:var(--danger);white-space:nowrap}
 .cart-item{display:flex;align-items:center;padding:.4rem 0;border-bottom:1px solid var(--gray-100);gap:.3rem}
-.cart-item .ci-name{flex:1;font-size:.8rem}
-.cart-item .ci-qty input{width:44px;padding:.2rem;text-align:center;border:1px solid var(--gray-300);border-radius:4px;font-size:.8rem}
-.cart-item .ci-subtotal{font-weight:600;font-size:.8rem;white-space:nowrap;min-width:55px;text-align:right}
-.cart-item .ci-del{border:none;background:none;color:var(--danger);font-size:1rem;cursor:pointer;padding:0 .3rem}
+.cart-item .ci-name{flex:1;font-size:.8rem}.cart-item .ci-qty input{width:44px;padding:.2rem;text-align:center;border:1px solid var(--gray-300);border-radius:4px;font-size:.8rem}
+.cart-item .ci-subtotal{font-weight:600;font-size:.8rem;min-width:55px;text-align:right}.cart-item .ci-del{border:none;background:none;color:var(--danger);font-size:1rem;cursor:pointer;padding:0 .3rem}
 .cart-total{display:flex;justify-content:space-between;align-items:center;padding:.5rem 0;font-size:1rem;font-weight:700}
 .cart-total .total-price{color:var(--danger);font-size:1.2rem}
 .tabs{display:flex;gap:.3rem;margin-bottom:.6rem;background:var(--gray-100);border-radius:8px;padding:3px;overflow-x:auto;flex-wrap:wrap}
@@ -85,17 +74,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Micr
 .toast-container{position:fixed;top:.6rem;left:50%;transform:translateX(-50%);z-index:999;display:flex;flex-direction:column;gap:.4rem;pointer-events:none;align-items:center}
 .toast{pointer-events:auto;padding:.5rem .9rem;border-radius:8px;font-size:.8rem;box-shadow:0 4px 12px rgba(0,0,0,.15);max-width:320px;text-align:center}
 .toast-success{background:#16a34a;color:#fff}.toast-error{background:#dc2626;color:#fff}.toast-warning{background:#f59e0b;color:#fff}
-.empty-state{text-align:center;padding:1.5rem;color:var(--gray-400);font-size:.82rem}
-.empty-state .icon{font-size:2rem;margin-bottom:.4rem}
+.empty-state{text-align:center;padding:1.5rem;color:var(--gray-400);font-size:.82rem}.empty-state .icon{font-size:2rem;margin-bottom:.4rem}
 .log-item{display:flex;justify-content:space-between;align-items:center;padding:.4rem 0;border-bottom:1px solid var(--gray-50);font-size:.78rem;gap:.3rem}
-.log-item .log-info{flex:1;min-width:0}
-.log-item .log-time{color:var(--gray-400);font-size:.7rem;white-space:nowrap;display:flex;align-items:center;gap:.3rem}
+.log-item .log-info{flex:1;min-width:0}.log-item .log-time{color:var(--gray-400);font-size:.7rem;white-space:nowrap;display:flex;align-items:center;gap:.3rem}
 .filter-bar{display:flex;gap:.4rem;align-items:center;flex-wrap:wrap;margin-bottom:.5rem;font-size:.78rem}
 .filter-bar input,.filter-bar select{padding:.35rem .5rem;border:1px solid var(--gray-300);border-radius:6px;font-size:.78rem;outline:none;background:#fff}
-.filter-bar input:focus,.filter-bar select:focus{border-color:var(--primary)}
 .pagination{display:flex;gap:.3rem;align-items:center;justify-content:center;margin-top:.5rem;font-size:.78rem}
-.pagination button{padding:.25rem .5rem;border:1px solid var(--gray-300);border-radius:4px;background:#fff;cursor:pointer}
-.pagination button:disabled{opacity:.4;cursor:default}
+.pagination button{padding:.25rem .5rem;border:1px solid var(--gray-300);border-radius:4px;background:#fff;cursor:pointer}.pagination button:disabled{opacity:.4;cursor:default}
 .pagination .page-info{color:var(--gray-500);font-size:.75rem}
 .tag{display:inline-block;padding:1px 6px;border-radius:4px;font-size:.7rem;font-weight:600}
 .tag-in{background:#dcfce7;color:#16a34a}.tag-out{background:#fef3c7;color:#b45309}.tag-sell{background:#dbeafe;color:var(--primary)}
@@ -108,92 +93,77 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Micr
 <div class="login-page" id="loginPage">
   <div class="login-card">
     <h1>🏪 便利店库存</h1>
-    <p>v3.1 多租户</p>
-    <div class="field"><label>账号</label><input type="text" id="loginUsername" autocomplete="username"></div>
-    <div class="field"><label>密码</label><input type="password" id="loginPassword" autocomplete="current-password"></div>
+    <p>v3.1</p>
+    <div class="field"><label>账号</label><input type="text" id="loginUsername" placeholder="admin"></div>
+    <div class="field"><label>密码</label><input type="password" id="loginPassword" placeholder="admin"></div>
     <button class="btn-login" onclick="doLogin()">登 录</button>
     <div class="login-error" id="loginError"></div>
   </div>
 </div>
-
 <div class="app" id="app">
-  <div class="topbar"><h2 id="pageTitle">工作台</h2>
-    <div class="user-info"><span id="userDisplay"></span><button class="logout-btn" onclick="doLogout()">退出</button></div>
-  </div>
-
-  <!-- 工作台 -->
+  <div class="topbar"><h2 id="pageTitle">工作台</h2><div class="user-info"><span id="userDisplay"></span><button class="logout-btn" onclick="doLogout()">退出</button></div></div>
   <div class="page active" id="page-dashboard">
     <div class="stats-grid" id="dashStats"></div>
-    <div class="card"><div class="card-header"><h3>⚠️ 库存不足</h3></div><div id="dashLowStock"><div class="empty-state"><p>暂无</p></div></div></div>
-    <div class="card"><div class="card-header"><h3>📋 最近操作</h3></div><div id="dashRecent"><div class="empty-state"><p>暂无</p></div></div></div>
+    <div class="card"><div class="card-header"><h3>⚠️ 库存不足</h3></div><div id="dashLowStock"></div></div>
+    <div class="card"><div class="card-header"><h3>📋 最近操作</h3></div><div id="dashRecent"></div></div>
   </div>
-
-  <!-- 售出 -->
   <div class="page" id="page-sell">
-    <div class="search-box"><span class="icon">🔍</span><input type="text" id="sellSearch" placeholder="搜索商品..." oninput="renderSellProducts()"></div>
-    <div class="tabs" id="sellTabs"><button class="active" onclick="setSellCat(this,'')">全部</button></div>
-    <div class="card" style="padding:.5rem;"><div class="sell-prod-list" id="sellProductList"><div class="empty-state"><div class="icon">📦</div><p>暂无商品</p></div></div></div>
-    <div class="card"><div class="card-header"><h3>🛒 待售清单</h3><span id="sellCartCount">0 件</span></div>
-      <div id="sellCartList"><div class="empty-state" style="padding:.5rem"><p>点击 ＋ 加入</p></div></div>
+    <div class="search-box"><span class="icon">🔍</span><input type="text" id="sellSearch" placeholder="搜索..." oninput="renderSellP()"></div>
+    <div class="tabs" id="sellTabs"><button class="active" onclick="setSellCatEl(this,'')">全部</button></div>
+    <div class="card" style="padding:.5rem"><div class="sell-prod-list" id="sellProdList"></div></div>
+    <div class="card">
+      <div class="card-header"><h3>🛒 待售</h3><span id="sellCartCnt">0</span></div>
+      <div id="sellCartList"></div>
       <div class="cart-total"><span>合计</span><span class="total-price" id="sellTotal">¥0.00</span></div>
       <button class="btn btn-success btn-block btn-lg" id="sellBtn" onclick="confirmSell()" disabled>✅ 确认售出</button>
     </div>
-    <div class="card"><div class="card-header"><h3>📋 已售记录（近1个月）</h3></div>
+    <div class="card">
+      <div class="card-header"><h3>📋 已售记录</h3></div>
       <div class="filter-bar">
-        <input type="date" id="shStart" onchange="renderSellHistory()"><span style="color:var(--gray-400)">至</span>
-        <input type="date" id="shEnd" onchange="renderSellHistory()">
-        <input type="text" id="shSearch" placeholder="商品名..." style="max-width:100px" oninput="renderSellHistory()">
+        <input type="date" id="shStart" onchange="renderSellHist()"><span style="color:var(--gray-400)">至</span>
+        <input type="date" id="shEnd" onchange="renderSellHist()">
+        <input type="text" id="shSearch" placeholder="商品名" style="max-width:90px" oninput="renderSellHist()">
       </div>
-      <div id="sellHistoryList"><div class="empty-state"><p>加载中...</p></div></div>
-      <div id="sellHistoryPage" class="pagination"></div>
+      <div id="sellHistList"><div class="empty-state"><p>加载...</p></div></div>
+      <div id="sellHistPg" class="pagination"></div>
     </div>
   </div>
-
-  <!-- 库存 -->
   <div class="page" id="page-inventory">
     <div class="search-box"><span class="icon">🔍</span><input type="text" id="invSearch" placeholder="搜索..." oninput="renderInv()"></div>
-    <div class="tabs"><button class="active" onclick="setInvFilter(this,'')">全部</button><button onclick="setInvFilter(this,'low')">⚠️ 不足</button><button onclick="setInvFilter(this,'critical')">🚨 缺货</button></div>
+    <div class="tabs"><button class="active" onclick="setInvF(this,'')">全部</button><button onclick="setInvF(this,'low')">⚠️不足</button><button onclick="setInvF(this,'critical')">🚨缺货</button></div>
     <div id="invList"></div>
     <button class="btn btn-primary btn-block" id="addBtn" onclick="openProductModal()" style="margin-top:.4rem">＋ 添加商品</button>
   </div>
-
-  <!-- 日志 -->
   <div class="page" id="page-logs">
     <div class="card"><div class="card-header"><h3>📝 操作日志</h3></div>
       <div class="filter-bar">
-        <select id="logType" onchange="renderLogs()"><option value="">全部类型</option><option value="in">入库</option><option value="out">出库</option><option value="sell">售出</option></select>
+        <select id="logType" onchange="renderLogs()"><option value="">全部</option><option value="in">入库</option><option value="out">出库</option><option value="sell">售出</option></select>
         <input type="date" id="logStart" onchange="renderLogs()"><span style="color:var(--gray-400)">至</span>
         <input type="date" id="logEnd" onchange="renderLogs()">
-        <button class="btn btn-outline btn-sm" onclick="resetLog()">重置</button>
+        <button class="btn btn-outline btn-sm" onclick="document.getElementById('logType').value='';document.getElementById('logStart').value=daysAgo(30);document.getElementById('logEnd').value=today();logPg=1;renderLogs()">重置</button>
       </div>
-      <div id="logList"><div class="empty-state"><p>加载中...</p></div></div>
-      <div id="logPagination" class="pagination"></div>
+      <div id="logList"></div>
+      <div id="logPag" class="pagination"></div>
     </div>
   </div>
-
-  <!-- 报表 -->
   <div class="page" id="page-reports">
     <div class="card"><div class="card-header"><h3>📊 报表</h3></div>
       <div class="filter-bar">
-        <select id="rpPeriod" onchange="onRpChange()"><option value="daily">日报</option><option value="weekly">周报</option><option value="monthly">月报</option><option value="yearly">年报</option><option value="custom">自定义</option></select>
-        <input type="date" id="rpStart" onchange="renderReport()"><span style="color:var(--gray-400)">至</span>
-        <input type="date" id="rpEnd" onchange="renderReport()">
-        <button class="btn btn-outline btn-sm" onclick="setRp('today')">今天</button>
-        <button class="btn btn-outline btn-sm" onclick="setRp('month')">本月</button>
+        <select id="rpPeriod" onchange="onRpCh()"><option value="daily">日报</option><option value="weekly">周报</option><option value="monthly">月报</option><option value="yearly">年报</option><option value="custom">自定义</option></select>
+        <input type="date" id="rpStart" onchange="renderRep()"><span style="color:var(--gray-400)">至</span>
+        <input type="date" id="rpEnd" onchange="renderRep()">
+        <button class="btn btn-outline btn-sm" onclick="setRp('today')">今天</button><button class="btn btn-outline btn-sm" onclick="setRp('month')">本月</button>
       </div>
-      <div id="reportSum" class="stats-grid"></div>
-      <div id="reportTop" class="card" style="display:none"><div class="card-header"><h3>🏆 热销排行</h3></div><div id="topSellList"></div></div>
+      <div id="repSum" class="stats-grid"></div>
+      <div id="repTop" class="card" style="display:none"><div class="card-header"><h3>🏆 热销</h3></div><div id="topList"></div></div>
     </div>
   </div>
-
-  <!-- 管理（仅超级管理员可见） -->
   <div class="page" id="page-admin">
     <div class="card"><div class="card-header"><h3>👥 用户管理</h3><span style="font-size:.7rem;color:var(--gray-400)">仅超级管理员</span></div>
       <button class="btn btn-primary btn-block" onclick="openUserModal()" style="margin-bottom:.5rem">＋ 添加用户</button>
       <div id="userList"></div>
     </div>
   </div>
-
   <nav class="bottom-nav">
     <a class="active" data-page="dashboard" onclick="switchPage('dashboard')"><span class="nav-icon">📊</span>工作台</a>
     <a data-page="sell" onclick="switchPage('sell')"><span class="nav-icon">🧾</span>售出</a>
@@ -203,12 +173,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Micr
     <a data-page="admin" onclick="switchPage('admin')"><span class="nav-icon">⚙️</span>管理</a>
   </nav>
 </div>
-
-<!-- Product Modal -->
 <div class="modal-overlay center" id="productModal"><div class="modal">
   <div class="modal-header"><h3 id="pmTitle">商品</h3><button class="modal-close" onclick="closeModal('productModal')">✕</button></div>
-  <div class="modal-body">
-    <input type="hidden" id="editPid">
+  <div class="modal-body"><input type="hidden" id="editPid">
     <div class="form-group"><label>名称 *</label><input type="text" id="fName"></div>
     <div class="form-row"><div class="form-group"><label>条码</label><input type="text" id="fBarcode"></div><div class="form-group"><label>分类 *</label><select id="fCategory"></select></div></div>
     <div class="form-row"><div class="form-group"><label>库存</label><input type="number" id="fQty" min="0" value="0"></div><div class="form-group"><label>警戒</label><input type="number" id="fMin" min="0" value="5"></div></div>
@@ -217,26 +184,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Micr
   </div>
   <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('productModal')">取消</button><button class="btn btn-primary" onclick="saveProduct()">保存</button></div>
 </div></div>
-
-<!-- Stock Modal -->
 <div class="modal-overlay center" id="stockModal"><div class="modal">
   <div class="modal-header"><h3>库存操作</h3><button class="modal-close" onclick="closeModal('stockModal')">✕</button></div>
   <div class="modal-body">
-    <div class="tabs" style="margin-bottom:.6rem"><button class="active" id="stIn" onclick="setSTab('in')">📥 入库</button><button id="stOut" onclick="setSTab('out')">📤 出库</button></div>
+    <div class="tabs" style="margin-bottom:.6rem"><button class="active" id="stIn" onclick="setSTab('in')">📥入库</button><button id="stOut" onclick="setSTab('out')">📤出库</button></div>
     <div class="form-group"><label>商品</label><select id="stockP"></select></div>
     <div class="form-group"><label>数量</label><input type="number" id="stockQ" min="1" value="1"></div>
     <div class="form-group" id="scG"><label>进价（可选）</label><input type="number" id="stockC" min="0" step="0.01"></div>
     <div class="form-group" id="spG" style="display:none"><label>售价（可选）</label><input type="number" id="stockP2" min="0" step="0.01"></div>
-    <div class="form-group"><label>备注</label><input type="text" id="stockN" placeholder="如：供应商送货"></div>
+    <div class="form-group"><label>备注</label><input type="text" id="stockN" placeholder="备注"></div>
   </div>
-  <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('stockModal')">取消</button><button class="btn btn-success" id="stockBtn" onclick="confirmStock()">✅ 确认入库</button></div>
+  <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('stockModal')">取消</button><button class="btn btn-success" id="stockBtn" onclick="confirmStock()">✅确认入库</button></div>
 </div></div>
-
-<!-- User Modal -->
 <div class="modal-overlay center" id="userModal"><div class="modal">
   <div class="modal-header"><h3>用户</h3><button class="modal-close" onclick="closeModal('userModal')">✕</button></div>
-  <div class="modal-body">
-    <input type="hidden" id="editUid">
+  <div class="modal-body"><input type="hidden" id="editUid">
     <div class="form-group"><label>账号 *</label><input type="text" id="uName"></div>
     <div class="form-group"><label>名称 *</label><input type="text" id="uDisplay"></div>
     <div class="form-group"><label>密码</label><input type="password" id="uPass" placeholder="留空不修改"></div>
@@ -244,241 +206,170 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Micr
   </div>
   <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('userModal')">取消</button><button class="btn btn-primary" onclick="saveUser()">保存</button></div>
 </div></div>
-
 <div class="toast-container" id="toastContainer"></div>
-
 <script>
-const A = window.location.origin;
-let T = localStorage.getItem('cvs_token'), U = null;
+var T=localStorage.getItem('cvs_token'),U=null;
 
-async function api(m, p, b) {
-  const o = { method: m, headers: { 'Content-Type': 'application/json' } };
-  if (T) o.headers['Authorization'] = 'Bearer ' + T;
-  if (b) o.body = JSON.stringify(b);
-  const r = await fetch(A + p, o);
-  const d = await r.json();
-  if (!r.ok) throw new Error(d.error || '请求失败');
-  return d;
+function $call(m,url,body){
+  return new Promise(function(resolve,reject){
+    var x=new XMLHttpRequest();
+    x.open(m,url,true);
+    x.setRequestHeader('Content-Type','application/json');
+    if(T)x.setRequestHeader('Authorization','Bearer '+T);
+    x.onload=function(){
+      try{
+        var d=JSON.parse(x.responseText);
+        if(x.status>=200&&x.status<300)resolve(d);
+        else reject(new Error(d.error||'请求失败'));
+      }catch(e){reject(new Error('服务器返回了无效数据'))}
+    };
+    x.onerror=function(){reject(new Error('网络错误'))};
+    x.send(body?JSON.stringify(body):null);
+  });
 }
+function today(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function daysAgo(n){var d=new Date();d.setDate(d.getDate()-n);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function toast(msg,t){t=t||'info';var c=document.getElementById('toastContainer'),x=document.createElement('div');x.className='toast toast-'+t;x.textContent=msg;c.appendChild(x);setTimeout(function(){x.style.opacity='0';x.style.transition='.3s';setTimeout(function(){x.remove()},300)},2000)}
 
-function today() { const d = new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
-function daysAgo(n) { const d = new Date(); d.setDate(d.getDate()-n); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
-
-async function doLogin() {
-  const u = document.getElementById('loginUsername').value.trim(), p = document.getElementById('loginPassword').value.trim(), e = document.getElementById('loginError');
-  e.style.display = 'none';
-  if (!u || !p) { e.textContent = '请输入'; e.style.display = 'block'; return; }
-  try { const d = await api('POST', '/api/login', { username: u, password: p }); T = d.token; U = d.user; localStorage.setItem('cvs_token', T); enterApp(); }
-  catch (x) { e.textContent = x.message; e.style.display = 'block'; }
+function doLogin(){
+  var u=document.getElementById('loginUsername').value.trim(),p=document.getElementById('loginPassword').value.trim(),e=document.getElementById('loginError');
+  e.style.display='none';
+  if(!u||!p){e.textContent='请输入';e.style.display='block';return}
+  $call('POST','/api/login',{username:u,password:p}).then(function(d){
+    T=d.token;U=d.user;localStorage.setItem('cvs_token',T);enterApp();
+  }).catch(function(x){e.textContent=x.message;e.style.display='block'});
 }
-
-function doLogout() { localStorage.removeItem('cvs_token'); T = null; U = null; document.getElementById('loginPage').style.display = 'flex'; document.getElementById('app').classList.remove('show'); }
-function toast(msg, t) { t = t || 'info'; const c = document.getElementById('toastContainer'), x = document.createElement('div'); x.className = 'toast toast-' + t; x.textContent = msg; c.appendChild(x); setTimeout(() => { x.style.opacity = '0'; x.style.transition = '.3s'; setTimeout(() => x.remove(), 300); }, 2000); }
-
-async function enterApp() {
-  document.getElementById('loginPage').style.display = 'none';
-  document.getElementById('app').classList.add('show');
-  document.getElementById('userDisplay').textContent = (U.display_name||U.username)+' · '+(U.role==='super_admin'?'超级管理员':U.role==='admin'?'管理员':'收银员');
-  const an = document.querySelector('[data-page="admin"]');
-  if (an) an.style.display = U.role === 'super_admin' ? 'block' : 'none';
-  document.getElementById('addBtn').style.display = U.role !== 'cashier' ? 'block' : 'none';
-  document.getElementById('logStart').value = daysAgo(30);
-  document.getElementById('logEnd').value = today();
-  document.getElementById('shStart').value = daysAgo(30);
-  document.getElementById('shEnd').value = today();
-  document.getElementById('rpStart').value = today();
-  document.getElementById('rpEnd').value = today();
-  await loadCats();
-  renderDash(); renderSellProducts(); renderInv(); renderLogs(); renderReport(); renderUsers();
-}
-
-function switchPage(n) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+function doLogout(){localStorage.removeItem('cvs_token');T=null;U=null;document.getElementById('loginPage').style.display='flex';document.getElementById('app').classList.remove('show')}
+function switchPage(n){
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active')});
   document.getElementById('page-'+n).classList.add('active');
-  document.querySelectorAll('.bottom-nav a').forEach(a => a.classList.remove('active'));
-  const nav = document.querySelector('.bottom-nav a[data-page="'+n+'"]');
-  if (nav) nav.classList.add('active');
-  const t = { dashboard:'工作台', sell:'售出', inventory:'库存管理', logs:'操作日志', reports:'数据报表', admin:'系统管理' };
-  document.getElementById('pageTitle').textContent = t[n]||'';
-  if (n === 'dashboard') renderDash();
-  if (n === 'sell') { renderSellProducts(); renderSellHistory(); }
-  if (n === 'inventory') renderInv();
-  if (n === 'logs') renderLogs();
-  if (n === 'reports') renderReport();
-  if (n === 'admin') renderUsers();
+  document.querySelectorAll('.bottom-nav a').forEach(function(a){a.classList.remove('active')});
+  var nav=document.querySelector('.bottom-nav a[data-page="'+n+'"]');if(nav)nav.classList.add('active');
+  var t={dashboard:'工作台',sell:'售出',inventory:'库存管理',logs:'操作日志',reports:'数据报表',admin:'系统管理'};
+  document.getElementById('pageTitle').textContent=t[n]||'';
+  if(n==='dashboard')renderDash();if(n==='sell'){renderSellP();renderSellHist()}if(n==='inventory')renderInv();if(n==='logs')renderLogs();if(n==='reports')renderRep();if(n==='admin')renderUsers()
 }
-function openModal(id) { document.getElementById(id).classList.add('show'); }
-function closeModal(id) { document.getElementById(id).classList.remove('show'); }
-document.addEventListener('click', e => { if (e.target.classList.contains('modal-overlay')) e.target.classList.remove('show'); });
+function openModal(id){document.getElementById(id).classList.add('show')}
+function closeModal(id){document.getElementById(id).classList.remove('show')}
+document.addEventListener('click',function(e){if(e.target.classList.contains('modal-overlay'))e.target.classList.remove('show')});
 
-// Categories
-let cats = [];
-async function loadCats() {
-  try { const s = await api('GET', '/api/settings'); cats = s.categories||[]; } catch(e) {}
-  document.getElementById('sellTabs').innerHTML = '<button class="active" onclick="setSellCat(this,\'\')">全部</button>';
-  cats.forEach(c => { document.getElementById('sellTabs').innerHTML += '<button onclick="setSellCat(this,\''+c+'\')">'+c+'</button>'; });
-  const f = document.getElementById('fCategory');
-  if (f) { f.innerHTML = '<option value="">请选择</option>'; cats.forEach(c => { f.innerHTML += '<option value="'+c+'">'+c+'</option>'; }); }
-}
+var cats=[];
+function loadCats(){$call('GET','/api/settings').then(function(s){cats=s.categories||[];buildTabs();buildCatSel()}).catch(function(){cats=[];buildTabs();buildCatSel()})}
+function buildTabs(){var c=document.getElementById('sellTabs');c.innerHTML='<button class="active" onclick="setSellCatEl(this,\'\')">全部</button>';cats.forEach(function(x){c.innerHTML+='<button onclick="setSellCatEl(this,\''+x+'\')">'+x+'</button>'})}
+function buildCatSel(){var s=document.getElementById('fCategory');if(s){s.innerHTML='<option value="">请选择</option>';cats.forEach(function(c){s.innerHTML+='<option value="'+c+'">'+c+'</option>'})}}
 
-// Dashboard
-async function renderDash() {
-  try {
-    const d = await api('GET', '/api/dashboard');
-    document.getElementById('dashStats').innerHTML =
-      '<div class="stat-card"><div class="num">'+d.totalProducts+'</div><div class="label">商品总数</div></div>' +
-      '<div class="stat-card"><div class="num">¥'+Number(d.totalValue).toFixed(0)+'</div><div class="label">库存价值</div></div>' +
-      '<div class="stat-card"><div class="num" style="color:#f59e0b">'+d.lowStock+'</div><div class="label">不足</div></div>' +
-      '<div class="stat-card"><div class="num" style="color:#dc2626">'+d.criticalStock+'</div><div class="label">缺货</div></div>' +
-      '<div class="stat-card"><div class="num" style="color:#2563eb">'+d.todaySales.sellQty+'</div><div class="label">今日售出</div></div>' +
-      '<div class="stat-card"><div class="num" style="color:#16a34a">'+d.todaySales.inQty+'</div><div class="label">今日入库</div></div>';
-    const l = document.getElementById('dashLowStock');
-    if (d.lowItems.length===0) l.innerHTML = '<div class="empty-state"><p>暂无 ✅</p></div>';
-    else l.innerHTML = d.lowItems.map(p => '<div class="product-item"><div class="info"><strong>'+p.name+'</strong><small>'+(p.category||'')+'</small></div><span class="stock-badge stock-low">'+p.qty+'</span></div>').join('');
-    const r = document.getElementById('dashRecent');
-    if (d.recentLogs.length===0) r.innerHTML = '<div class="empty-state"><p>暂无</p></div>';
-    else r.innerHTML = d.recentLogs.map(l => '<div class="log-item"><div class="log-info">'+(l.type==='in'?'📥':l.type==='out'?'📤':'🧾')+' <strong>'+l.product_name+'</strong> '+(l.type==='in'?'入库':l.type==='out'?'出库':'售出')+' '+l.qty+(l.operator?' · '+l.operator:'')+'</div><div class="log-time">'+l.time+'</div></div>').join('');
-  } catch(e) {}
+var store=[],cart=[],sellCat='';
+function setSellCatEl(el,c){document.querySelectorAll('#sellTabs button').forEach(function(b){b.classList.remove('active')});el.classList.add('active');sellCat=c;renderSellP()}
+function renderSellP(){
+  $call('GET','/api/products').then(function(ps){store=ps;doRenderSellP()}).catch(function(){})
 }
-
-// Sell
-let sellPs = [], sellCart = [], sellCat = '';
-function setSellCat(el, c) { document.querySelectorAll('#sellTabs button').forEach(b => b.classList.remove('active')); el.classList.add('active'); sellCat = c; renderSellProducts(); }
-async function renderSellProducts() {
-  try { sellPs = await api('GET', '/api/products'); } catch(e) { return; }
-  const s = (document.getElementById('sellSearch').value||'').toLowerCase();
-  let l = sellPs;
-  if (s) l = l.filter(p => p.name.toLowerCase().includes(s));
-  if (sellCat) l = l.filter(p => p.category === sellCat);
-  l = l.filter(p => p.qty > 0);
-  const c = document.getElementById('sellProductList');
-  if (l.length===0) { c.innerHTML = '<div class="empty-state"><div class="icon">📦</div><p>无商品</p></div>'; renderSellCart(); return; }
-  c.innerHTML = l.map(p => {
-    const inCart = sellCart.find(x => x.product_id === p.id);
-    return '<div class="sell-item"><div class="si-info"><strong>'+p.name+'</strong><small>库存:'+p.qty+'</small></div><div class="si-price">¥'+Number(p.price).toFixed(2)+'</div>' +
-      (inCart ? '<div style="display:flex;align-items:center;gap:.2rem"><input type="number" min="1" max="'+p.qty+'" value="'+inCart.qty+'" style="width:40px;padding:.2rem;text-align:center;border:1px solid #d1d5db;border-radius:4px;font-size:.8rem" onchange="updSell(\''+p.id+'\',this.value)"><button class="btn btn-danger btn-sm" onclick="rmSell(\''+p.id+'\')">✕</button></div>' : '<button class="btn btn-primary btn-sm" onclick="addSell(\''+p.id+'\')">＋</button>') + '</div>';
-  }).join('');
-  renderSellCart();
+function doRenderSellP(){
+  var s=(document.getElementById('sellSearch').value||'').toLowerCase(),l=store;
+  if(s)l=l.filter(function(p){return p.name.toLowerCase().indexOf(s)>=0});
+  if(sellCat)l=l.filter(function(p){return p.category===sellCat});
+  l=l.filter(function(p){return p.qty>0});
+  var c=document.getElementById('sellProdList');
+  if(l.length===0){c.innerHTML='<div class="empty-state"><div class="icon">📦</div><p>无商品</p></div>';renderSellCart();return}
+  c.innerHTML=l.map(function(p){var inC=cart.find(function(x){return x.product_id===p.id});return '<div class="sell-item"><div class="si-info"><strong>'+p.name+'</strong><small>库存:'+p.qty+'</small></div><div class="si-price">¥'+Number(p.price).toFixed(2)+'</div>'+(inC?'<div style="display:flex;align-items:center;gap:.2rem"><input type="number" min="1" max="'+p.qty+'" value="'+inC.qty+'" style="width:40px;padding:.2rem;text-align:center;border:1px solid #d1d5db;border-radius:4px;font-size:.8rem" onchange="updSell(\''+p.id+'\',this.value)"><button class="btn btn-danger btn-sm" onclick="rmSell(\''+p.id+'\')">✕</button></div>':'<button class="btn btn-primary btn-sm" onclick="addSell(\''+p.id+'\')">＋</button>')+'</div>'}).join('');
+  renderSellCart()
 }
-function addSell(id) { const p = sellPs.find(x => x.id===id); if (p) { sellCart.push({product_id:p.id,product_name:p.name,qty:1,price:p.price}); renderSellProducts(); } }
-function updSell(id, v) {
-  const n = parseInt(v), item = sellCart.find(c => c.product_id===id);
-  if (!item) return;
-  if (isNaN(n)||n<1) { sellCart = sellCart.filter(c => c.product_id!==id); }
-  else { const p = sellPs.find(x => x.id===id); if (p && n>p.qty) { toast('库存不足','warning'); return; } item.qty = n; }
-  renderSellProducts();
+function addSell(id){var p=store.find(function(x){return x.id===id});if(p){cart.push({product_id:p.id,product_name:p.name,qty:1,price:p.price});doRenderSellP()}}
+function updSell(id,v){var n=parseInt(v),item=cart.find(function(c){return c.product_id===id});if(!item)return;if(isNaN(n)||n<1){cart=cart.filter(function(c){return c.product_id!==id})}else{var p=store.find(function(x){return x.id===id});if(p&&n>p.qty){toast('库存不足','warning');return}item.qty=n}doRenderSellP()}
+function rmSell(id){cart=cart.filter(function(c){return c.product_id!==id});doRenderSellP()}
+function renderSellCart(){
+  var c=document.getElementById('sellCartList'),cnt=document.getElementById('sellCartCnt'),tEl=document.getElementById('sellTotal'),btn=document.getElementById('sellBtn');
+  cnt.textContent=cart.reduce(function(s,i){return s+i.qty},0)+'件';
+  if(!cart.length){c.innerHTML='<div class="empty-state" style="padding:.5rem"><p>点击 ＋ 加入</p></div>';tEl.textContent='¥0.00';btn.disabled=true;return}
+  btn.disabled=false;var t=0;
+  c.innerHTML=cart.map(function(item){var sub=item.qty*item.price;t+=sub;return'<div class="cart-item"><span class="ci-name">'+item.product_name+'</span><span class="ci-qty"><input type="number" min="1" max="'+(store.find(function(p){return p.id===item.product_id})||{}).qty||99+'" value="'+item.qty+'" onchange="updSell(\''+item.product_id+'\',this.value)"></span><span class="ci-subtotal">¥'+sub.toFixed(2)+'</span><button class="ci-del" onclick="rmSell(\''+item.product_id+'\')">✕</button></div>'}).join('');
+  tEl.textContent='¥'+t.toFixed(2)
 }
-function rmSell(id) { sellCart = sellCart.filter(c => c.product_id!==id); renderSellProducts(); }
-function renderSellCart() {
-  const c = document.getElementById('sellCartList');
-  document.getElementById('sellCartCount').textContent = sellCart.reduce((s,i)=>s+i.qty,0)+'件';
-  if (!sellCart.length) { c.innerHTML = '<div class="empty-state" style="padding:.5rem"><p>点击 ＋ 加入</p></div>'; document.getElementById('sellTotal').textContent='¥0.00'; document.getElementById('sellBtn').disabled=true; return; }
-  document.getElementById('sellBtn').disabled=false; let t=0;
-  c.innerHTML = sellCart.map((item,idx) => {
-    const sub = item.qty*item.price; t+=sub;
-    return '<div class="cart-item"><span class="ci-name">'+item.product_name+'</span><span class="ci-qty"><input type="number" min="1" max="'+(sellPs.find(p=>p.id===item.product_id)||{}).qty||99+'" value="'+item.qty+'" onchange="updSell(\''+item.product_id+'\',this.value)"></span><span class="ci-subtotal">¥'+sub.toFixed(2)+'</span><button class="ci-del" onclick="rmSell(\''+item.product_id+'\')">✕</button></div>';
-  }).join('');
-  document.getElementById('sellTotal').textContent = '¥'+t.toFixed(2);
+function confirmSell(){
+  if(!cart.length){toast('请添加','warning');return}
+  var qty=cart.reduce(function(s,i){return s+i.qty},0),t=cart.reduce(function(s,i){return s+i.qty*i.price},0);
+  if(!confirm('售出 '+qty+' 件，¥'+t.toFixed(2)+'？'))return;
+  $call('POST','/api/sell',{items:cart.map(function(i){return{product_id:i.product_id,qty:i.qty,price:i.price}})}).then(function(d){toast('✅ 售出成功 ¥'+d.total,'success');cart=[];doRenderSellP();renderDash();renderSellHist()}).catch(function(e){toast(e.message,'error')})
 }
-async function confirmSell() {
-  if (!sellCart.length) { toast('请添加商品','warning'); return; }
-  const t = sellCart.reduce((s,i)=>s+i.qty*i.price,0);
-  if (!confirm('售出 '+sellCart.reduce((s,i)=>s+i.qty,0)+' 件，合计 ¥'+t.toFixed(2)+'？')) return;
-  try { await api('POST','/api/sell',{items:sellCart.map(i=>({product_id:i.product_id,qty:i.qty,price:i.price}))}); toast('✅ 售出成功 ¥'+t.toFixed(2),'success'); sellCart=[]; renderSellProducts(); renderDash(); renderSellHistory(); } catch(e) { toast(e.message,'error'); }
+var shPg=1;
+function renderSellHist(){
+  var sd=document.getElementById('shStart').value,ed=document.getElementById('shEnd').value,sr=document.getElementById('shSearch').value.trim();
+  var qs='start_date='+(sd||'2000-01-01')+'&end_date='+(ed||'2099-12-31')+'&page='+shPg+'&page_size=20';if(sr)qs+='&search='+encodeURIComponent(sr);
+  $call('GET','/api/sell-logs?'+qs).then(function(d){
+    var c=document.getElementById('sellHistList');if(d.logs.length===0){c.innerHTML='<div class="empty-state"><p>暂无</p></div>';document.getElementById('sellHistPg').innerHTML='';return}
+    c.innerHTML=d.logs.map(function(l){return'<div class="log-item"><div class="log-info"><span class="tag tag-sell">售出</span> <strong>'+l.product_name+'</strong> ×'+l.qty+(l.operator?' · '+l.operator:'')+'</div><div class="log-time">'+l.time+' <button class="btn-xs" onclick="revertSell('+l._idx+')">↩撤回</button></div></div>'}).join('');
+    var pg=document.getElementById('sellHistPg');pg.innerHTML='<button '+(shPg<=1?'disabled':'')+' onclick="shPg=1;renderSellHist()">首页</button><button '+(shPg<=1?'disabled':'')+' onclick="shPg--;renderSellHist()">上一页</button><span class="page-info">'+d.page+'/'+d.total_pages+'</span><button '+(shPg>=d.total_pages?'disabled':'')+' onclick="shPg++;renderSellHist()">下一页</button>'
+  }).catch(function(){})
 }
-
-// Sell History
-let shPage=1;
-async function renderSellHistory(){
-  const sd=document.getElementById('shStart').value,ed=document.getElementById('shEnd').value,srch=document.getElementById('shSearch').value.trim();
-  try{
-    const d=await api('GET','/api/sell-logs?'+new URLSearchParams({start_date:sd||'2000-01-01',end_date:ed||'2099-12-31',search:srch,page:shPage,page_size:20}));
-    const c=document.getElementById('sellHistoryList');
-    if(d.logs.length===0){c.innerHTML='<div class="empty-state"><p>暂无记录</p></div>';document.getElementById('sellHistoryPage').innerHTML='';return;}
-    c.innerHTML=d.logs.map(l=>'<div class="log-item"><div class="log-info"><span class="tag tag-sell">售出</span> <strong>'+l.product_name+'</strong> ×'+l.qty+(l.operator?' · '+l.operator:'')+'</div><div class="log-time">'+l.time+' <button class="btn-xs" onclick="revertSell('+l._idx+')">↩ 撤回</button></div></div>').join('');
-    const pg=document.getElementById('sellHistoryPage');
-    pg.innerHTML='<button '+(shPage<=1?'disabled':'')+' onclick="shPage=1;renderSellHistory()">首页</button><button '+(shPage<=1?'disabled':'')+' onclick="shPage--;renderSellHistory()">上一页</button><span class="page-info">'+d.page+'/'+d.total_pages+'</span><button '+(shPage>=d.total_pages?'disabled':'')+' onclick="shPage++;renderSellHistory()">下一页</button>';
-  }catch(e){}
+function revertSell(idx){if(!confirm('撤回售出，库存将恢复？'))return;$call('POST','/api/sell-logs/'+idx+'/revert').then(function(r){toast('✅ '+r.message,'success');renderSellHist();renderDash();renderInv();renderSellP()}).catch(function(e){toast(e.message,'error')})}
+var invFilter='';
+function setInvF(el,f){document.querySelectorAll('#page-inventory .tabs button').forEach(function(b){b.classList.remove('active')});el.classList.add('active');invFilter=f;renderInv()}
+function renderInv(){
+  var qs='';if(invFilter)qs+='stock_status='+invFilter+'&';var s=document.getElementById('invSearch').value.trim();if(s)qs+='search='+encodeURIComponent(s);
+  $call('GET','/api/products?'+qs).then(function(prods){
+    $call('GET','/api/settings').then(function(set){
+      var lo=parseInt(set.low_threshold)||10,cr=parseInt(set.critical_threshold)||3,c=document.getElementById('invList');
+      if(prods.length===0){c.innerHTML='<div class="empty-state"><div class="icon">📦</div><p>暂无</p></div>';return}
+      c.innerHTML=prods.map(function(p){var bd,cls;if(p.qty<=cr){bd='缺货';cls='stock-critical'}else if(p.qty<=lo){bd='不足';cls='stock-low'}else{bd='正常';cls='stock-ok'}
+        return'<div class="product-item"><div class="info"><strong>'+p.name+'</strong><small>'+(p.category||'')+(p.shelf?' · '+p.shelf:'')+' · ¥'+Number(p.price).toFixed(2)+'</small></div><span class="stock-badge '+cls+'">'+p.qty+' · '+bd+'</span>'+(U&&U.role!=='cashier'?'<button class="btn btn-outline btn-sm" onclick="openStockModal(\''+p.id+'\')">🔄</button><button class="btn btn-outline btn-sm" onclick="editProduct(\''+p.id+'\')">✏️</button>':'')+'</div>'}).join('')
+    }).catch(function(){})
+  }).catch(function(){})
 }
-async function revertSell(idx){
-  if(!confirm('撤回售出，库存将恢复？'))return;
-  try{const r=await api('POST','/api/sell-logs/'+idx+'/revert');toast('✅ '+r.message,'success');renderSellHistory();renderDash();renderInv();renderSellProducts()}catch(e){toast(e.message,'error')}
+function openProductModal(){document.getElementById('pmTitle').textContent='添加商品';document.getElementById('editPid').value='';['fName','fBarcode','fSupplier','fShelf'].forEach(function(i){document.getElementById(i).value=''});document.getElementById('fQty').value=0;document.getElementById('fMin').value=5;document.getElementById('fCost').value='';document.getElementById('fPrice').value='';document.getElementById('fCategory').value='';openModal('productModal')}
+function editProduct(id){$call('GET','/api/products').then(function(ps){var p=ps.find(function(x){return x.id===id});if(!p)return;document.getElementById('pmTitle').textContent='编辑商品';document.getElementById('editPid').value=p.id;document.getElementById('fName').value=p.name;document.getElementById('fBarcode').value=p.barcode||'';document.getElementById('fCategory').value=p.category||'';document.getElementById('fSupplier').value=p.supplier||'';document.getElementById('fQty').value=p.qty;document.getElementById('fMin').value=p.min_stock||5;document.getElementById('fCost').value=p.cost||'';document.getElementById('fPrice').value=p.price||'';document.getElementById('fShelf').value=p.shelf||'';openModal('productModal')}).catch(function(){})}
+function saveProduct(){
+  var id=document.getElementById('editPid').value,n=document.getElementById('fName').value.trim(),c=document.getElementById('fCategory').value,p=parseFloat(document.getElementById('fPrice').value);
+  if(!n){toast('请输入名称','warning');return}if(!c){toast('请选择分类','warning');return}if(!p&&p!==0){toast('请输入售价','warning');return}
+  var b={name:n,barcode:document.getElementById('fBarcode').value.trim(),category:c,supplier:document.getElementById('fSupplier').value.trim(),qty:parseInt(document.getElementById('fQty').value)||0,min_stock:parseInt(document.getElementById('fMin').value)||5,cost:parseFloat(document.getElementById('fCost').value)||0,price:p,shelf:document.getElementById('fShelf').value.trim()};
+  var req=id?$call('PUT','/api/products/'+id,b):$call('POST','/api/products',b);
+  req.then(function(){toast(id?'已更新':'已添加','success');closeModal('productModal');renderInv();renderSellP()}).catch(function(e){toast(e.message,'error')})
 }
-
-// Inventory
-let invFilter='';
-function setInvFilter(el,f){document.querySelectorAll('#page-inventory .tabs button').forEach(b=>b.classList.remove('active'));el.classList.add('active');invFilter=f;renderInv()}
-async function renderInv(){
-  try{
-    const params=new URLSearchParams();if(invFilter)params.set('stock_status',invFilter);
-    const s=document.getElementById('invSearch').value.trim();if(s)params.set('search',s);
-    const prods=await api('GET','/api/products?'+params.toString());
-    let set;try{set=await api('GET','/api/settings')}catch(e){set={low_threshold:10,critical_threshold:3}}
-    const lo=parseInt(set.low_threshold),cr=parseInt(set.critical_threshold);
-    const c=document.getElementById('invList');
-    if(prods.length===0){c.innerHTML='<div class="empty-state"><div class="icon">📦</div><p>暂无</p></div>';return;}
-    c.innerHTML=prods.map(p=>{let bd,cls;if(p.qty<=cr){bd='缺货';cls='stock-critical'}else if(p.qty<=lo){bd='不足';cls='stock-low'}else{bd='正常';cls='stock-ok'}
-      return '<div class="product-item"><div class="info"><strong>'+p.name+'</strong><small>'+(p.category||'')+(p.shelf?' · '+p.shelf:'')+' · ¥'+Number(p.price).toFixed(2)+'</small></div><span class="stock-badge '+cls+'">'+p.qty+' · '+bd+'</span>'+
-        (U&&U.role!=='cashier'?'<button class="btn btn-outline btn-sm" onclick="openStockModal(\''+p.id+'\')">🔄</button><button class="btn btn-outline btn-sm" onclick="editProduct(\''+p.id+'\')">✏️</button>':'')+'</div>';
-    }).join('');
-  }catch(e){}
+var sMode='in';
+function openStockModal(pid){
+  var s=document.getElementById('stockP');s.innerHTML='<option value="">--请选择--</option>';
+  $call('GET','/api/products').then(function(ps){ps.forEach(function(p){s.innerHTML+='<option value="'+p.id+'" '+(p.id===pid?'selected':'')+'>'+p.name+' ('+p.qty+')</option>'})}).catch(function(){});
+  setSTab('in');document.getElementById('stockQ').value=1;document.getElementById('stockC').value='';document.getElementById('stockP2').value='';document.getElementById('stockN').value='';openModal('stockModal')
 }
-
-// Stock Modal
-let sMode='in';
-async function openStockModal(pid){
-  const s=document.getElementById('stockP');s.innerHTML='<option value="">--请选择--</option>';
-  try{const ps=await api('GET','/api/products');ps.forEach(p=>{s.innerHTML+='<option value="'+p.id+'" '+(p.id===pid?'selected':'')+'>'+p.name+' ('+p.qty+')</option>'})}catch(e){}
-  setSTab('in');document.getElementById('stockQ').value=1;document.getElementById('stockC').value='';document.getElementById('stockP2').value='';document.getElementById('stockN').value='';openModal('stockModal');
+function setSTab(m){sMode=m;document.getElementById('stIn').className=m==='in'?'active':'';document.getElementById('stOut').className=m==='out'?'active':'';document.getElementById('scG').style.display=m==='in'?'block':'none';document.getElementById('spG').style.display=m==='out'?'block':'none';document.getElementById('stockBtn').className=m==='in'?'btn btn-success':'btn btn-warning';document.getElementById('stockBtn').textContent=m==='in'?'✅确认入库':'📤确认出库'}
+function confirmStock(){
+  var q=parseInt(document.getElementById('stockQ').value),pid=document.getElementById('stockP').value,c=parseFloat(document.getElementById('stockC').value),p2=parseFloat(document.getElementById('stockP2').value),n=document.getElementById('stockN').value.trim();
+  if(isNaN(q)||q<1){toast('输入数量','warning');return}if(!pid){toast('请选择','warning');return}
+  var body={product_id:pid,qty:q,note:n};if(sMode==='in'){if(!isNaN(c)&&c>0)body.cost=c}else{if(!isNaN(p2)&&p2>0)body.price=p2}
+  $call('POST','/api/stock/'+(sMode==='in'?'in':'out'),body).then(function(){toast(sMode==='in'?'入库成功':'出库成功','success');closeModal('stockModal');renderInv();renderSellP();renderDash();renderLogs()}).catch(function(e){toast(e.message,'error')})
 }
-function setSTab(m){sMode=m;document.getElementById('stIn').className=m==='in'?'active':'';document.getElementById('stOut').className=m==='out'?'active':'';document.getElementById('scG').style.display=m==='in'?'block':'none';document.getElementById('spG').style.display=m==='out'?'block':'none';document.getElementById('stockBtn').className=m==='in'?'btn btn-success':'btn btn-warning';document.getElementById('stockBtn').textContent=m==='in'?'✅ 确认入库':'📤 确认出库'}
-async function confirmStock(){
-  const q=parseInt(document.getElementById('stockQ').value);if(isNaN(q)||q<1){toast('输入数量','warning');return}
-  const pid=document.getElementById('stockP').value;if(!pid){toast('请选择','warning');return}
-  const c=parseFloat(document.getElementById('stockC').value),p2=parseFloat(document.getElementById('stockP2').value),n=document.getElementById('stockN').value.trim();
-  try{if(sMode==='in'){await api('POST','/api/stock/in',{product_id:pid,qty:q,cost:isNaN(c)?undefined:c,note:n});toast('入库成功','success')}else{await api('POST','/api/stock/out',{product_id:pid,qty:q,price:isNaN(p2)?undefined:p2,note:n});toast('出库成功','success')}closeModal('stockModal');renderInv();renderSellProducts();renderDash();renderLogs()}catch(e){toast(e.message,'error')}
+var logPg=1;
+function renderLogs(){
+  var t=document.getElementById('logType').value,sd=document.getElementById('logStart').value,ed=document.getElementById('logEnd').value;
+  var qs='type='+(t||'')+'&start_date='+(sd||'2000-01-01')+'&end_date='+(ed||'2099-12-31')+'&page='+logPg+'&page_size=30';
+  $call('GET','/api/logs?'+qs).then(function(d){
+    var c=document.getElementById('logList');if(d.logs.length===0){c.innerHTML='<div class="empty-state"><div class="icon">📝</div><p>暂无</p></div>';document.getElementById('logPag').innerHTML='';return}
+    c.innerHTML=d.logs.map(function(l){var t=l.type==='in'?'入库':l.type==='out'?'出库':'售出',tag=l.type==='in'?'tag-in':l.type==='out'?'tag-out':'tag-sell';return'<div class="log-item"><div class="log-info"><span class="tag '+tag+'">'+t+'</span> <strong>'+l.product_name+'</strong> ×'+l.qty+(l.operator?' · '+l.operator:'')+(l.note?' · '+l.note:'')+'</div><div class="log-time">'+l.time+'</div></div>'}).join('');
+    var pg=document.getElementById('logPag');pg.innerHTML='<button '+(logPg<=1?'disabled':'')+' onclick="logPg=1;renderLogs()">首页</button><button '+(logPg<=1?'disabled':'')+' onclick="logPg--;renderLogs()">上一页</button><span class="page-info">'+d.page+'/'+d.total_pages+' (共'+d.total+')</span><button '+(logPg>=d.total_pages?'disabled':'')+' onclick="logPg++;renderLogs()">下一页</button>'
+  }).catch(function(){})
 }
-
-// Product CRUD
-function openProductModal(){document.getElementById('pmTitle').textContent='添加商品';document.getElementById('editPid').value='';['fName','fBarcode','fSupplier','fShelf'].forEach(i=>document.getElementById(i).value='');document.getElementById('fQty').value=0;document.getElementById('fMin').value=5;document.getElementById('fCost').value='';document.getElementById('fPrice').value='';document.getElementById('fCategory').value='';openModal('productModal')}
-async function editProduct(id){try{const p=(await api('GET','/api/products')).find(x=>x.id===id);if(!p)return;document.getElementById('pmTitle').textContent='编辑商品';document.getElementById('editPid').value=p.id;document.getElementById('fName').value=p.name;document.getElementById('fBarcode').value=p.barcode||'';document.getElementById('fCategory').value=p.category||'';document.getElementById('fSupplier').value=p.supplier||'';document.getElementById('fQty').value=p.qty;document.getElementById('fMin').value=p.min_stock||5;document.getElementById('fCost').value=p.cost||'';document.getElementById('fPrice').value=p.price||'';document.getElementById('fShelf').value=p.shelf||'';openModal('productModal')}catch(e){toast(e.message,'error')}}
-async function saveProduct(){const id=document.getElementById('editPid').value,n=document.getElementById('fName').value.trim(),c=document.getElementById('fCategory').value,p=parseFloat(document.getElementById('fPrice').value);if(!n){toast('请输入名称','warning');return}if(!c){toast('请选择分类','warning');return}if(!p){toast('请输入售价','warning');return}const b={name:n,barcode:document.getElementById('fBarcode').value.trim(),category:c,supplier:document.getElementById('fSupplier').value.trim(),qty:parseInt(document.getElementById('fQty').value)||0,min_stock:parseInt(document.getElementById('fMin').value)||5,cost:parseFloat(document.getElementById('fCost').value)||0,price:p,shelf:document.getElementById('fShelf').value.trim()};try{if(id){await api('PUT','/api/products/'+id,b);toast('已更新','success')}else{await api('POST','/api/products',b);toast('已添加','success')}closeModal('productModal');renderInv();renderSellProducts()}catch(e){toast(e.message,'error')}}
-
-// Logs
-let logPage=1;
-function resetLog(){document.getElementById('logType').value='';document.getElementById('logStart').value=daysAgo(30);document.getElementById('logEnd').value=today();logPage=1;renderLogs()}
-async function renderLogs(){
-  const type=document.getElementById('logType').value,sd=document.getElementById('logStart').value,ed=document.getElementById('logEnd').value;
-  try{
-    const d=await api('GET','/api/logs?'+new URLSearchParams({type,start_date:sd||'2000-01-01',end_date:ed||'2099-12-31',page:logPage,page_size:30}));
-    const c=document.getElementById('logList');
-    if(d.logs.length===0){c.innerHTML='<div class="empty-state"><div class="icon">📝</div><p>暂无记录</p></div>';document.getElementById('logPagination').innerHTML='';return;}
-    c.innerHTML=d.logs.map(l=>{
-      const t=l.type==='in'?'入库':l.type==='out'?'出库':'售出',tag=l.type==='in'?'tag-in':l.type==='out'?'tag-out':'tag-sell';
-      return '<div class="log-item"><div class="log-info"><span class="tag '+tag+'">'+t+'</span> <strong>'+l.product_name+'</strong> ×'+l.qty+(l.operator?' · '+l.operator:'')+(l.note?' · '+l.note:'')+'</div><div class="log-time">'+l.time+'</div></div>';
-    }).join('');
-    const pg=document.getElementById('logPagination');
-    pg.innerHTML='<button '+(logPage<=1?'disabled':'')+' onclick="logPage=1;renderLogs()">首页</button><button '+(logPage<=1?'disabled':'')+' onclick="logPage--;renderLogs()">上一页</button><span class="page-info">'+d.page+'/'+d.total_pages+' (共'+d.total+'条)</span><button '+(logPage>=d.total_pages?'disabled':'')+' onclick="logPage++;renderLogs()">下一页</button>';
-  }catch(e){}
+function onRpCh(){var p=document.getElementById('rpPeriod').value,t=today();if(p==='daily'){document.getElementById('rpStart').value=t;document.getElementById('rpEnd').value=t}else if(p==='weekly'){var d=new Date();d.setDate(d.getDate()-d.getDay());document.getElementById('rpStart').value=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');document.getElementById('rpEnd').value=t}else if(p==='monthly'){document.getElementById('rpStart').value=new Date().getFullYear()+'-'+String(new Date().getMonth()+1).padStart(2,'0')+'-01';document.getElementById('rpEnd').value=t}else if(p==='yearly'){document.getElementById('rpStart').value=new Date().getFullYear()+'-01-01';document.getElementById('rpEnd').value=t}renderRep()}
+function setRp(p){if(p==='today'){document.getElementById('rpPeriod').value='daily';document.getElementById('rpStart').value=today();document.getElementById('rpEnd').value=today()}else if(p==='month'){document.getElementById('rpPeriod').value='monthly';document.getElementById('rpStart').value=new Date().getFullYear()+'-'+String(new Date().getMonth()+1).padStart(2,'0')+'-01';document.getElementById('rpEnd').value=today()}renderRep()}
+function renderRep(){
+  var sd=document.getElementById('rpStart').value,ed=document.getElementById('rpEnd').value;if(!sd||!ed)return;
+  $call('GET','/api/reports?start_date='+sd+'&end_date='+ed).then(function(d){document.getElementById('repSum').innerHTML='<div class="stat-card"><div class="num" style="color:#16a34a">'+d.summary.totalInQty+'</div><div class="label">入库总数</div></div><div class="stat-card"><div class="num" style="color:#2563eb">'+d.summary.totalSellQty+'</div><div class="label">售出总数</div></div><div class="stat-card"><div class="num" style="color:#dc2626">¥'+Number(d.summary.totalSales).toFixed(0)+'</div><div class="label">销售金额</div></div><div class="stat-card"><div class="num">'+d.summary.totalSellItems+'</div><div class="label">交易笔数</div></div>';var t=document.getElementById('repTop');if(d.topSell&&d.topSell.length>0){t.style.display='block';document.getElementById('topList').innerHTML=d.topSell.map(function(p,i){return'<div class="product-item"><div class="info"><strong>'+(i+1)+'. '+p.name+'</strong></div><span style="font-weight:700;color:#dc2626">售出 '+p.qty+'</span></div>'}).join('')}else t.style.display='none'}).catch(function(){})
 }
-
-// Reports
-function onRpChange(){const p=document.getElementById('rpPeriod').value,t=today();if(p==='daily'){document.getElementById('rpStart').value=t;document.getElementById('rpEnd').value=t}else if(p==='weekly'){const d=new Date();d.setDate(d.getDate()-d.getDay());document.getElementById('rpStart').value=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');document.getElementById('rpEnd').value=t}else if(p==='monthly'){document.getElementById('rpStart').value=new Date().getFullYear()+'-'+String(new Date().getMonth()+1).padStart(2,'0')+'-01';document.getElementById('rpEnd').value=t}else if(p==='yearly'){document.getElementById('rpStart').value=new Date().getFullYear()+'-01-01';document.getElementById('rpEnd').value=t}renderReport()}
-function setRp(p){if(p==='today'){document.getElementById('rpPeriod').value='daily';document.getElementById('rpStart').value=today();document.getElementById('rpEnd').value=today()}else if(p==='month'){document.getElementById('rpPeriod').value='monthly';document.getElementById('rpStart').value=new Date().getFullYear()+'-'+String(new Date().getMonth()+1).padStart(2,'0')+'-01';document.getElementById('rpEnd').value=today()}renderReport()}
-async function renderReport(){const sd=document.getElementById('rpStart').value,ed=document.getElementById('rpEnd').value;if(!sd||!ed)return;try{const d=await api('GET','/api/reports?'+new URLSearchParams({start_date:sd,end_date:ed}));document.getElementById('reportSum').innerHTML='<div class="stat-card"><div class="num" style="color:#16a34a">'+d.summary.totalInQty+'</div><div class="label">入库总数</div></div><div class="stat-card"><div class="num" style="color:#2563eb">'+d.summary.totalSellQty+'</div><div class="label">售出总数</div></div><div class="stat-card"><div class="num" style="color:#dc2626">¥'+Number(d.summary.totalSales).toFixed(0)+'</div><div class="label">销售金额</div></div><div class="stat-card"><div class="num">'+d.summary.totalSellItems+'</div><div class="label">交易笔数</div></div>';const t=document.getElementById('reportTop');if(d.topSell&&d.topSell.length>0){t.style.display='block';document.getElementById('topSellList').innerHTML=d.topSell.map((p,i)=>'<div class="product-item"><div class="info"><strong>'+(i+1)+'. '+p.name+'</strong></div><span style="font-weight:700;color:#dc2626">售出 '+p.qty+'</span></div>').join('')}else t.style.display='none'}catch(e){}}
-
-// Users
-async function renderUsers(){if(document.getElementById('page-admin').classList.contains('active')===false)return;try{const users=await api('GET','/api/users');document.getElementById('userList').innerHTML=users.length===0?'<div class="empty-state"><p>暂无</p></div>':users.map(u=>{const r=u.role==='super_admin'?'超级管理员':u.role==='admin'?'管理员':'收银员',cl=u.role==='super_admin'?'role-sa':u.role==='admin'?'role-ad':'role-ca';return'<div class="user-row"><div><strong>'+u.display_name+'</strong> <span class="role-badge '+cl+'">'+r+'</span><br><span style="font-size:.72rem;color:var(--gray-400)">'+u.username+'</span></div>'+(u.role!=='super_admin'?'<div style="display:flex;gap:.3rem"><button class="btn btn-outline btn-sm" onclick="editUser(\''+u.id+'\',\''+u.username+'\',\''+u.display_name+'\',\''+u.role+'\')">✏️</button><button class="btn btn-danger btn-sm" onclick="deleteUser(\''+u.id+'\')">删除</button></div>':'')+'</div>'}).join('')}catch(e){}}
+function renderDash(){$call('GET','/api/dashboard').then(function(d){document.getElementById('dashStats').innerHTML='<div class="stat-card"><div class="num">'+d.totalProducts+'</div><div class="label">商品总数</div></div><div class="stat-card"><div class="num">¥'+Number(d.totalValue).toFixed(0)+'</div><div class="label">库存价值</div></div><div class="stat-card"><div class="num" style="color:#f59e0b">'+d.lowStock+'</div><div class="label">不足</div></div><div class="stat-card"><div class="num" style="color:#dc2626">'+d.criticalStock+'</div><div class="label">缺货</div></div><div class="stat-card"><div class="num" style="color:#2563eb">'+d.todaySales.sellQty+'</div><div class="label">今日售出</div></div><div class="stat-card"><div class="num" style="color:#16a34a">'+d.todaySales.inQty+'</div><div class="label">今日入库</div></div>';var l=document.getElementById('dashLowStock');if(d.lowItems.length===0)l.innerHTML='<div class="empty-state"><p>暂无 ✅</p></div>';else l.innerHTML=d.lowItems.map(function(p){return'<div class="product-item"><div class="info"><strong>'+p.name+'</strong><small>'+(p.category||'')+'</small></div><span class="stock-badge stock-low">'+p.qty+'</span></div>'}).join('');var r=document.getElementById('dashRecent');if(d.recentLogs.length===0)r.innerHTML='<div class="empty-state"><p>暂无</p></div>';else r.innerHTML=d.recentLogs.map(function(l){return'<div class="log-item"><div class="log-info">'+(l.type==='in'?'📥':l.type==='out'?'📤':'🧾')+' <strong>'+l.product_name+'</strong> '+(l.type==='in'?'入库':l.type==='out'?'出库':'售出')+' '+l.qty+(l.operator?' · '+l.operator:'')+'</div><div class="log-time">'+l.time+'</div></div>'}).join('')}).catch(function(){})}
+function renderUsers(){if(document.getElementById('page-admin').classList.contains('active')===false)return;$call('GET','/api/users').then(function(users){document.getElementById('userList').innerHTML=users.length===0?'<div class="empty-state"><p>暂无</p></div>':users.map(function(u){var r=u.role==='super_admin'?'超级管理员':u.role==='admin'?'管理员':'收银员',cl=u.role==='super_admin'?'role-sa':u.role==='admin'?'role-ad':'role-ca';return'<div class="user-row"><div><strong>'+u.display_name+'</strong> <span class="role-badge '+cl+'">'+r+'</span><br><span style="font-size:.72rem;color:var(--gray-400)">'+u.username+'</span></div>'+(u.role!=='super_admin'?'<div style="display:flex;gap:.3rem"><button class="btn btn-outline btn-sm" onclick="editUser(\''+u.id+'\',\''+u.username+'\',\''+u.display_name+'\',\''+u.role+'\')">✏️</button><button class="btn btn-danger btn-sm" onclick="deleteUser(\''+u.id+'\')">删除</button></div>':'')+'</div>'}).join('')}).catch(function(){})}
 function openUserModal(){document.getElementById('editUid').value='';document.getElementById('uName').value='';document.getElementById('uName').disabled=false;document.getElementById('uDisplay').value='';document.getElementById('uPass').value='';document.getElementById('uRole').value='admin';openModal('userModal')}
 function editUser(id,un,dn,rl){document.getElementById('editUid').value=id;document.getElementById('uName').value=un;document.getElementById('uName').disabled=true;document.getElementById('uDisplay').value=dn;document.getElementById('uPass').value='';document.getElementById('uRole').value=rl;openModal('userModal')}
-async function saveUser(){const id=document.getElementById('editUid').value,un=document.getElementById('uName').value.trim(),dn=document.getElementById('uDisplay').value.trim(),pw=document.getElementById('uPass').value,rl=document.getElementById('uRole').value;if(!dn){toast('请输入名称','warning');return}if(!id&&!un){toast('请输入账号','warning');return}try{if(id){const b={display_name:dn,role:rl};if(pw)b.password=pw;await api('PUT','/api/users/'+id,b);toast('已更新','success')}else{if(!pw){toast('请输入密码','warning');return}await api('POST','/api/users',{username:un,password:pw,display_name:dn,role:rl});toast('已添加','success')}closeModal('userModal');renderUsers()}catch(e){toast(e.message,'error')}}
-async function deleteUser(id){if(!confirm('确认删除？'))return;try{await api('DELETE','/api/users/'+id);toast('已删除','success');renderUsers()}catch(e){toast(e.message,'error')}}
-
-// Auto refresh
-setInterval(async()=>{if(document.getElementById('app').classList.contains('show')){const p=document.querySelector('.page.active');if(p){const id=p.id;if(id==='page-dashboard')renderDash();else if(id==='page-sell'){renderSellProducts()}else if(id==='page-inventory')renderInv();else if(id==='page-reports')renderReport()}}},30000);
-
-// Init
-(async function init(){if(T){try{const d=await api('GET','/api/me');U=d.user;await enterApp()}catch(e){localStorage.removeItem('cvs_token');T=null}}})();
+function saveUser(){var id=document.getElementById('editUid').value,un=document.getElementById('uName').value.trim(),dn=document.getElementById('uDisplay').value.trim(),pw=document.getElementById('uPass').value,rl=document.getElementById('uRole').value;if(!dn){toast('请输入名称','warning');return}if(!id&&!un){toast('请输入账号','warning');return}try{if(id){var b={display_name:dn,role:rl};if(pw)b.password=pw;$call('PUT','/api/users/'+id,b).then(function(){toast('已更新','success');closeModal('userModal');renderUsers()}).catch(function(e){toast(e.message,'error')})}else{if(!pw){toast('请输入密码','warning');return}$call('POST','/api/users',{username:un,password:pw,display_name:dn,role:rl}).then(function(){toast('已添加','success');closeModal('userModal');renderUsers()}).catch(function(e){toast(e.message,'error')})}}catch(e){toast(e.message,'error')}}
+function deleteUser(id){if(!confirm('确认删除？'))return;$call('DELETE','/api/users/'+id).then(function(){toast('已删除','success');renderUsers()}).catch(function(e){toast(e.message,'error')})}
+function enterApp(){
+  document.getElementById('loginPage').style.display='none';document.getElementById('app').classList.add('show');
+  document.getElementById('userDisplay').textContent=(U.display_name||U.username)+' · '+(U.role==='super_admin'?'超级管理员':U.role==='admin'?'管理员':'收银员');
+  var an=document.querySelector('[data-page="admin"]');if(an)an.style.display=U.role==='super_admin'?'block':'none';
+  document.getElementById('addBtn').style.display=U.role!=='cashier'?'block':'none';
+  document.getElementById('logStart').value=daysAgo(30);document.getElementById('logEnd').value=today();
+  document.getElementById('shStart').value=daysAgo(30);document.getElementById('shEnd').value=today();
+  document.getElementById('rpStart').value=today();document.getElementById('rpEnd').value=today();
+  loadCats();renderDash();renderSellP();renderInv();renderLogs();renderRep();renderUsers()
+}
+setInterval(function(){if(document.getElementById('app').classList.contains('show')){var p=document.querySelector('.page.active');if(p){var id=p.id;if(id==='page-dashboard')renderDash();else if(id==='page-sell')renderSellP();else if(id==='page-inventory')renderInv();else if(id==='page-reports')renderRep()}}},30000);
+(function init(){if(T){$call('GET','/api/me').then(function(d){U=d.user;enterApp()}).catch(function(){localStorage.removeItem('cvs_token');T=null})}})();
 </script>
 </body>
 </html>
