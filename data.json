@@ -1,0 +1,44 @@
+{
+  "users": [
+    {
+      "id": "admin-1",
+      "username": "admin",
+      "password": "$2a$10$lB1mgJeYFnwcDIupe.7xIuQngjDZP8/XVRnPBKi0UhWi1lb9epQD6",
+      "display_name": "管理员",
+      "role": "admin",
+      "created_at": "2026/6/18 06:21:24"
+    }
+  ],
+  "products": [
+    {
+      "id": "mqj43eoidyq5",
+      "name": "测试商品",
+      "barcode": "",
+      "category": "饮料",
+      "supplier": "",
+      "qty": 0,
+      "min_stock": 5,
+      "cost": 0,
+      "price": 5.5,
+      "shelf": "",
+      "created_at": "2026/6/18 06:21:25",
+      "updated_at": "2026/6/18 06:21:25"
+    }
+  ],
+  "stock_log": [],
+  "sales": [],
+  "settings": {
+    "low_threshold": 10,
+    "critical_threshold": 3,
+    "shop_name": "我的便利店",
+    "categories": [
+      "饮料",
+      "零食",
+      "方便食品",
+      "日用品",
+      "烟酒",
+      "冷藏食品",
+      "调味品"
+    ]
+  }
+}
